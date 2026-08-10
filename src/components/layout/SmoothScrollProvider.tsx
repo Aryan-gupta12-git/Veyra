@@ -11,13 +11,13 @@ export const SmoothScrollProvider: React.FC<SmoothScrollProviderProps> = ({ chil
   const location = useLocation();
 
   useEffect(() => {
-    // Initialize Lenis 60fps smooth momentum scroll
+    // Initialize Lenis smooth momentum scroll (Snappy & Responsive)
     const lenis = new Lenis({
-      duration: 1.2,
-      easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), // Smooth exponential ease-out
+      duration: 0.7, // Snappy & instant response without heavy sluggish delay
+      easing: (t: number) => 1 - Math.pow(1 - t, 3.5), // Smooth cubic-exponential ease-out
       smoothWheel: true,
-      wheelMultiplier: 1.0,
-      touchMultiplier: 1.5,
+      wheelMultiplier: 1.15, // Effortless scroll distance per notch
+      touchMultiplier: 1.8,
       infinite: false,
     });
 

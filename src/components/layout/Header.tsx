@@ -99,6 +99,12 @@ export const Header: React.FC<HeaderProps> = ({
   };
 
   const handleLogoClick = (e: React.MouseEvent) => {
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
+    if (!isMobile) {
+      // On desktop, logo click navigates immediately to home/admin
+      return;
+    }
+
     e.preventDefault();
     tapCount.current += 1;
 
@@ -140,7 +146,7 @@ export const Header: React.FC<HeaderProps> = ({
             to={isAdmin ? '/admin' : '/'}
             onClick={handleLogoClick}
             className="flex items-center gap-2 group transition-opacity duration-150 hover:opacity-85 select-none cursor-pointer"
-            title="Triple-tap to search articles"
+            title="Veyra Home"
           >
             <span className="font-serif text-xl sm:text-3xl font-normal tracking-tight text-ink">
               Veyra

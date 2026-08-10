@@ -105,14 +105,96 @@ export const ArticlePage: React.FC = () => {
     }
   };
 
-  const handleTitleDoubleClick = (e: React.MouseEvent) => {
-    e.preventDefault();
+  const lastTapRef = useRef<{ time: number; x: number; y: number }>({ time: 0, x: 0, y: 0 });
+  const lastDoubleTapTriggeredRef = useRef<number>(0);
+  const lastTouchTimeRef = useRef<number>(0);
+
+  const handleDoubleTapToLike = async () => {
+    if (!article) return;
 
     // Trigger Instagram-style screen-center big glowing heart burst
     setShowBigHeart(true);
     setTimeout(() => setShowBigHeart(false), 850);
 
-    handleToggleLike();
+    if (!user) {
+      alert('Please log in to like this article.');
+      return;
+    }
+
+    // If already liked, stay liked and play heart animation
+    if (hasLiked) {
+      return;
+    }
+
+    // Synchronously update local UI state immediately
+    const prevLiked = hasLiked;
+    const prevCount = likeCount;
+    const nextCount = prevCount + 1;
+
+    setHasLiked(true);
+    setLikeCount(nextCount);
+    setArticle((prev) => (prev ? { ...prev, likes: nextCount, hasLiked: true } : null));
+
+    // Background HTTP Server Sync
+    try {
+      const res = await toggleLikeArticle(article.id);
+      setHasLiked(res.liked);
+      setLikeCount(res.likes);
+      setArticle((prev) => (prev ? { ...prev, likes: res.likes, hasLiked: res.liked } : null));
+    } catch (err: any) {
+      console.error('Error toggling like on double-tap:', err);
+      // Rollback on network failure
+      setHasLiked(prevLiked);
+      setLikeCount(prevCount);
+      setArticle((prev) => (prev ? { ...prev, likes: prevCount, hasLiked: prevLiked } : null));
+      alert(err.message || 'Failed to toggle like');
+    }
+  };
+
+  const handleArticleTapOrClick = (e: React.MouseEvent | React.TouchEvent) => {
+    const target = e.target as HTMLElement;
+    // Do not trigger double-tap like when tapping interactive controls
+    if (target.closest('a, button, input, textarea, [role="button"]')) {
+      return;
+    }
+
+    const now = Date.now();
+
+    if ('touches' in e || (e.type && e.type.startsWith('touch'))) {
+      lastTouchTimeRef.current = now;
+    } else if (now - lastTouchTimeRef.current < 500) {
+      // Ignore synthetic click event right after touch
+      return;
+    }
+
+    const timeDiff = now - lastTapRef.current.time;
+
+    let clientX = 0;
+    let clientY = 0;
+
+    if ('changedTouches' in e && e.changedTouches.length > 0) {
+      clientX = e.changedTouches[0].clientX;
+      clientY = e.changedTouches[0].clientY;
+    } else if ('touches' in e && e.touches.length > 0) {
+      clientX = e.touches[0].clientX;
+      clientY = e.touches[0].clientY;
+    } else if ('clientX' in e) {
+      clientX = (e as React.MouseEvent).clientX;
+      clientY = (e as React.MouseEvent).clientY;
+    }
+
+    const distX = Math.abs(clientX - lastTapRef.current.x);
+    const distY = Math.abs(clientY - lastTapRef.current.y);
+
+    if (timeDiff > 40 && timeDiff < 350 && distX < 60 && distY < 60) {
+      if (now - lastDoubleTapTriggeredRef.current >= 400) {
+        lastDoubleTapTriggeredRef.current = now;
+        handleDoubleTapToLike();
+      }
+      lastTapRef.current = { time: 0, x: 0, y: 0 };
+    } else {
+      lastTapRef.current = { time: now, x: clientX, y: clientY };
+    }
   };
 
   const handleCopyLink = () => {
@@ -162,7 +244,11 @@ export const ArticlePage: React.FC = () => {
             </button>
           </div>
         ) : (
-          <article className="max-w-[700px] mx-auto px-6 sm:px-8 pt-10 sm:pt-14 pb-16 animate-fade-in">
+          <article
+            onClick={handleArticleTapOrClick}
+            onTouchEnd={handleArticleTapOrClick}
+            className="max-w-[700px] mx-auto px-6 sm:px-8 pt-10 sm:pt-14 pb-16 animate-fade-in"
+          >
             {/* Back Button */}
             <div className="mb-10">
               <button
@@ -185,9 +271,9 @@ export const ArticlePage: React.FC = () => {
 
               {/* Expressive Title */}
               <h1
-                onDoubleClick={handleTitleDoubleClick}
+                onDoubleClick={handleDoubleTapToLike}
                 className="font-serif text-3xl sm:text-4xl md:text-[44px] font-normal leading-[1.35] sm:leading-[1.35] tracking-tight text-ink mb-8 select-none cursor-pointer transition-transform active:scale-[0.99]"
-                title="Double-click to like this article"
+                title="Double-tap or double-click to like this article"
               >
                 {article.title}
               </h1>
