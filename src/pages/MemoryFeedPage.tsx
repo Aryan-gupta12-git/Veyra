@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { KnowledgeItem } from '../types/knowledge';
-import { fetchUserKnowledgeItems } from '../services/api';
+import { fetchUserKnowledgeItems, deleteKnowledgeItem } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import Header from '../components/layout/Header';
 import Footer from '../components/layout/Footer';
 import ArticleCardSkeleton from '../components/skeleton/ArticleCardSkeleton';
-import { ArrowLeft, Brain, BookOpen } from 'lucide-react';
+import { ArrowLeft, Brain, BookOpen, Trash2 } from 'lucide-react';
 
 export const MemoryFeedPage: React.FC = () => {
   const { user } = useAuth();
@@ -40,6 +40,18 @@ export const MemoryFeedPage: React.FC = () => {
       setError(err.message || 'Failed to load Memory');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDeleteMemory = async (e: React.MouseEvent, itemId: string) => {
+    e.stopPropagation();
+    try {
+      setKnowledgeItems((prev) => prev.filter((i) => i.id !== itemId));
+      await deleteKnowledgeItem(itemId);
+    } catch (err: any) {
+      console.error('Error deleting memory item:', err);
+      alert(err.message || 'Failed to delete memory item');
+      loadKnowledge();
     }
   };
 
@@ -115,13 +127,21 @@ export const MemoryFeedPage: React.FC = () => {
               <div
                 key={item.id}
                 onClick={() => handleCardClick(item)}
-                className="group flex flex-col justify-between h-full border border-border/90 bg-surface/50 hover:bg-surface hover:border-ink hover:shadow-md hover:-translate-y-1 rounded-xl p-6 sm:p-7 transition-all duration-300 ease-out cursor-pointer"
+                className="group flex flex-col justify-between h-full border border-border/90 bg-surface/50 hover:bg-surface hover:border-ink hover:shadow-md hover:-translate-y-1 rounded-xl p-6 sm:p-7 transition-all duration-300 ease-out cursor-pointer relative"
               >
-                {/* Highlighted Quote Text */}
-                <div className="mb-6">
-                  <p className="font-serif text-base sm:text-lg font-normal text-ink leading-snug tracking-tight mb-2 italic group-hover:text-ink/85 transition-colors">
+                {/* Highlighted Quote Text & Delete Button */}
+                <div className="flex items-start justify-between gap-3 mb-6">
+                  <p className="font-serif text-base sm:text-lg font-normal text-ink leading-snug tracking-tight italic group-hover:text-ink/85 transition-colors flex-1">
                     “{item.selectedText}”
                   </p>
+                  <button
+                    type="button"
+                    onClick={(e) => handleDeleteMemory(e, item.id)}
+                    className="p-1 rounded-md text-ink/40 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-500/10 transition-all opacity-0 group-hover:opacity-100 cursor-pointer shrink-0"
+                    title="Delete Memory"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
                 </div>
 
                 {/* Article Info */}

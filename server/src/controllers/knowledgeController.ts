@@ -187,3 +187,32 @@ export const getUserKnowledgeItems = async (req: AuthRequest, res: Response): Pr
     res.status(500).json({ error: 'Failed to fetch Knowledge Items' });
   }
 };
+
+export const deleteKnowledgeItem = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      res.status(401).json({ error: 'Unauthorized' });
+      return;
+    }
+
+    const idParam = req.params.id;
+    if (!idParam) {
+      res.status(400).json({ error: 'Knowledge item ID required' });
+      return;
+    }
+    const id = String(idParam);
+
+    await prisma.knowledgeItem.deleteMany({
+      where: {
+        id,
+        userId,
+      },
+    });
+
+    res.json({ success: true });
+  } catch (err: any) {
+    console.error('Error deleting Knowledge Item:', err);
+    res.status(500).json({ error: 'Failed to delete Memory item' });
+  }
+};

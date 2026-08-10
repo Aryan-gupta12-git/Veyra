@@ -74,20 +74,36 @@ export const ArticlePage: React.FC = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Auto-scroll to specific highlight when navigating from Memory Feed
+  // Auto-scroll to specific highlight when navigating from Memory
   useEffect(() => {
     if (!article || loading) return;
     const searchParams = new URLSearchParams(window.location.search);
     const highlightId = searchParams.get('highlightId');
 
     if (highlightId) {
-      const scrollTimer = setTimeout(() => {
-        const mark = document.querySelector(`mark[data-highlight-id="${highlightId}"]`) || document.querySelector('mark.veyra-highlight');
+      const attemptScroll = () => {
+        const mark =
+          document.querySelector(`mark[data-highlight-id="${highlightId}"]`) ||
+          document.querySelector('mark.veyra-highlight');
         if (mark) {
           mark.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          return true;
         }
-      }, 350);
-      return () => clearTimeout(scrollTimer);
+        return false;
+      };
+
+      attemptScroll();
+      const t1 = setTimeout(attemptScroll, 50);
+      const t2 = setTimeout(attemptScroll, 150);
+      const t3 = setTimeout(attemptScroll, 350);
+      const t4 = setTimeout(attemptScroll, 600);
+
+      return () => {
+        clearTimeout(t1);
+        clearTimeout(t2);
+        clearTimeout(t3);
+        clearTimeout(t4);
+      };
     }
   }, [article, loading]);
 

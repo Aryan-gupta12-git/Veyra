@@ -61,9 +61,11 @@ function ScrollToTop() {
       };
     } else {
       isPopRef.current = false;
-      window.scrollTo(0, 0);
+      if (!location.search.includes('highlightId')) {
+        window.scrollTo(0, 0);
+      }
     }
-  }, [location.pathname, location.key, navigationType]);
+  }, [location.pathname, location.key, location.search, navigationType]);
 
   return null;
 }

@@ -457,3 +457,19 @@ export async function fetchUserKnowledgeItems(): Promise<import('../types/knowle
   }
   return [];
 }
+
+export async function deleteKnowledgeItem(id: string): Promise<boolean> {
+  const res = await fetch(`/api/knowledge/${id}`, {
+    method: 'DELETE',
+    credentials: 'include',
+  });
+
+  if (!res.ok) {
+    const errText = await res.text();
+    let parsedErr: any = {};
+    try { parsedErr = JSON.parse(errText); } catch (e) {}
+    throw new Error(parsedErr.error || `Failed to delete Memory item (${res.status})`);
+  }
+
+  return true;
+}
