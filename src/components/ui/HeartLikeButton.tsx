@@ -20,9 +20,13 @@ export const HeartLikeButton: React.FC<HeartLikeButtonProps> = ({
   const dotLottieRef = useRef<any>(null);
 
   useEffect(() => {
-    if (dotLottieRef.current && hasLiked) {
-      dotLottieRef.current.setSpeed(1.8);
-      dotLottieRef.current.play();
+    if (dotLottieRef.current) {
+      if (hasLiked) {
+        dotLottieRef.current.setSpeed(1.8);
+        dotLottieRef.current.play();
+      } else {
+        dotLottieRef.current.stop();
+      }
     }
   }, [hasLiked]);
 
@@ -50,25 +54,24 @@ export const HeartLikeButton: React.FC<HeartLikeButtonProps> = ({
         title={hasLiked ? 'Unlike article' : 'Like article'}
       >
         <div className="relative w-6 h-6 flex items-center justify-center shrink-0">
-          {hasLiked ? (
-            <DotLottieReact
-              dotLottieRefCallback={(dotLottie) => {
-                dotLottieRef.current = dotLottie;
-                if (dotLottie) {
-                  dotLottie.setSpeed(1.8);
+          <DotLottieReact
+            dotLottieRefCallback={(dotLottie) => {
+              dotLottieRef.current = dotLottie;
+              if (dotLottie) {
+                dotLottie.setSpeed(1.8);
+                if (hasLiked) {
+                  dotLottie.play();
+                } else {
+                  dotLottie.stop();
                 }
-              }}
-              src="https://lottie.host/c99f236d-0f5a-40d7-93d2-bbce7ec2dd5b/iTjk8mF118.lottie"
-              autoplay={true}
-              loop={false}
-              speed={1.8}
-              className="w-10 h-10 absolute -top-2 -left-2 pointer-events-none"
-            />
-          ) : (
-            <Heart
-              className="w-4 h-4 text-muted group-hover:text-red-500 transition-all transform group-hover:scale-110"
-            />
-          )}
+              }
+            }}
+            src="https://lottie.host/c99f236d-0f5a-40d7-93d2-bbce7ec2dd5b/iTjk8mF118.lottie"
+            autoplay={hasLiked}
+            loop={false}
+            speed={1.8}
+            className="w-10 h-10 absolute -top-2 -left-2 pointer-events-none"
+          />
         </div>
         <span className="text-[11px] select-none ml-1">{likeCount}</span>
       </button>
