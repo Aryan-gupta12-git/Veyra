@@ -267,17 +267,6 @@ export const Header: React.FC<HeaderProps> = ({
                   </div>
 
                   <div className="py-1">
-                    {isAdmin && (
-                      <Link
-                        to="/admin"
-                        onClick={() => setProfileMenuOpen(false)}
-                        className="group flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium text-muted hover:text-ink hover:bg-black/[0.03] dark:hover:bg-white/[0.04] transition-colors"
-                      >
-                        <ShieldCheck className="w-4 h-4 text-ink/80 group-hover:text-ink transition-colors shrink-0" />
-                        <span>Admin Dashboard</span>
-                      </Link>
-                    )}
-
                     <Link
                       to="/profile"
                       onClick={() => setProfileMenuOpen(false)}
@@ -287,14 +276,16 @@ export const Header: React.FC<HeaderProps> = ({
                       <span>Profile</span>
                     </Link>
 
-                    <Link
-                      to="/memory-feed"
-                      onClick={() => setProfileMenuOpen(false)}
-                      className="group flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium text-muted hover:text-ink hover:bg-black/[0.03] dark:hover:bg-white/[0.04] transition-colors"
-                    >
-                      <Brain className="w-4 h-4 text-ink/80 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors shrink-0" />
-                      <span>Memory</span>
-                    </Link>
+                    {!isAdmin && (
+                      <Link
+                        to="/memory-feed"
+                        onClick={() => setProfileMenuOpen(false)}
+                        className="group flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium text-muted hover:text-ink hover:bg-black/[0.03] dark:hover:bg-white/[0.04] transition-colors"
+                      >
+                        <Brain className="w-4 h-4 text-ink/80 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors shrink-0" />
+                        <span>Memory</span>
+                      </Link>
+                    )}
 
                     <Link
                       to="/liked"

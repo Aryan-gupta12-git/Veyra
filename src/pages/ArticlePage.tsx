@@ -118,7 +118,7 @@ export const ArticlePage: React.FC = () => {
   };
 
   const handleToggleLike = async () => {
-    if (!article) return;
+    if (!article || isAdmin) return;
     if (!user) {
       alert('Please log in to like this article.');
       return;
@@ -156,7 +156,7 @@ export const ArticlePage: React.FC = () => {
   const lastTouchTimeRef = useRef<number>(0);
 
   const handleDoubleTapToLike = async () => {
-    if (!article) return;
+    if (!article || isAdmin) return;
 
     // Trigger Instagram-style screen-center big glowing heart burst
     setShowBigHeart(true);
