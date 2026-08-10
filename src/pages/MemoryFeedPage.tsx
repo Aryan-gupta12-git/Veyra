@@ -127,11 +127,11 @@ export const MemoryFeedPage: React.FC = () => {
               <div
                 key={item.id}
                 onClick={() => handleCardClick(item)}
-                className="group flex flex-col justify-between h-full border border-border/90 bg-surface/50 hover:bg-surface hover:border-ink hover:shadow-md hover:-translate-y-1 rounded-xl p-6 sm:p-7 transition-all duration-300 ease-out cursor-pointer relative"
+                className="group flex flex-col justify-between h-[250px] sm:h-[260px] border border-border/90 bg-surface/50 hover:bg-surface hover:border-ink hover:shadow-md hover:-translate-y-1 rounded-xl p-6 sm:p-7 transition-all duration-300 ease-out cursor-pointer relative overflow-hidden"
               >
                 {/* Highlighted Quote Text & Delete Button */}
-                <div className="flex items-start justify-between gap-3 mb-6">
-                  <p className="font-serif text-base sm:text-lg font-normal text-ink leading-snug tracking-tight italic group-hover:text-ink/85 transition-colors flex-1">
+                <div className="flex items-start justify-between gap-3 mb-4 overflow-hidden">
+                  <p className="font-serif text-base sm:text-lg font-normal text-ink leading-snug tracking-tight italic group-hover:text-ink/85 transition-colors line-clamp-4 flex-1">
                     “{item.selectedText}”
                   </p>
                   <button
