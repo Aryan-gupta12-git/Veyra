@@ -52,34 +52,29 @@ export const HeartLikeButton: React.FC<HeartLikeButtonProps> = ({
         onClick={onToggleLike}
         disabled={disabled}
         className={`flex items-center gap-1.5 transition-colors cursor-pointer disabled:opacity-50 relative group font-medium ${
-          hasLiked ? 'text-red-600 dark:text-red-500' : 'text-muted hover:text-ink'
+          hasLiked ? 'text-red-600 dark:text-red-500' : 'text-ink hover:text-ink'
         }`}
         title={hasLiked ? 'Unlike article' : 'Like article'}
       >
         <div className="relative w-5 h-5 flex items-center justify-center shrink-0 overflow-visible">
-          <DotLottieReact
-            dotLottieRefCallback={(dotLottie) => {
-              dotLottieRef.current = dotLottie;
-              if (dotLottie) {
-                dotLottie.setSpeed(1.8);
-                if (hasLiked) {
+          {hasLiked ? (
+            <DotLottieReact
+              dotLottieRefCallback={(dotLottie) => {
+                dotLottieRef.current = dotLottie;
+                if (dotLottie) {
+                  dotLottie.setSpeed(1.8);
                   dotLottie.play();
-                } else {
-                  dotLottie.stop();
-                  if (typeof (dotLottie as any).setFrame === 'function') {
-                    (dotLottie as any).setFrame(0);
-                  }
                 }
-              }
-            }}
-            src="https://lottie.host/c99f236d-0f5a-40d7-93d2-bbce7ec2dd5b/iTjk8mF118.lottie"
-            autoplay={hasLiked}
-            loop={false}
-            speed={1.8}
-            className={`w-7 h-7 absolute -top-1 -left-1 pointer-events-none transition-all ${
-              hasLiked ? '' : 'contrast-[1.4] brightness-[0.65] dark:brightness-[1.8] dark:contrast-[1.2]'
-            }`}
-          />
+              }}
+              src="https://lottie.host/c99f236d-0f5a-40d7-93d2-bbce7ec2dd5b/iTjk8mF118.lottie"
+              autoplay={true}
+              loop={false}
+              speed={1.8}
+              className="w-7 h-7 absolute -top-1 -left-1 pointer-events-none"
+            />
+          ) : (
+            <Heart className="w-4.5 h-4.5 text-black dark:text-white stroke-[2.25] group-hover:scale-110 transition-all" />
+          )}
         </div>
         <span className="text-[11px] tabular-nums select-none">{likeCount}</span>
       </button>
