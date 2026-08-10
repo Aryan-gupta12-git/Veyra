@@ -38,31 +38,33 @@ function computePillPosition(
   const gap = 8; // 8px spacing directly above selection
   const minEdgePadding = 12; // Keep pill inside viewport
 
-  // Calculate centered horizontal position sticky over target selection
-  const selectionCenterX = rect.left + rect.width / 2;
-  const clampedLeft = Math.max(
-    approxWidth / 2 + minEdgePadding,
-    Math.min(viewportWidth - approxWidth / 2 - minEdgePadding, selectionCenterX)
-  );
+  const scrollX = typeof window !== 'undefined' ? window.scrollX : 0;
+  const scrollY = typeof window !== 'undefined' ? window.scrollY : 0;
 
-  // Check if there is enough space above the selection (top viewport boundary)
+  // Calculate centered horizontal position relative to document.body
+  const selectionCenterX = rect.left + scrollX + rect.width / 2;
+  const minLeft = approxWidth / 2 + minEdgePadding + scrollX;
+  const maxLeft = viewportWidth - approxWidth / 2 - minEdgePadding + scrollX;
+  const clampedLeft = Math.max(minLeft, Math.min(maxLeft, selectionCenterX));
+
+  // Check if target line is too close to top of viewport
   const spaceAbove = rect.top;
   const isTooCloseToTop = spaceAbove < buttonHeight + gap + 8;
 
   if (!isTooCloseToTop) {
-    // Sticky position fixed directly 8px ABOVE selection in UI
+    // Position absolute relative to document.body so popover moves synchronously with text when scrolling
     return {
-      position: 'fixed',
-      top: `${rect.top - gap}px`,
+      position: 'absolute',
+      top: `${rect.top + scrollY - gap}px`,
       left: `${clampedLeft}px`,
       transform: 'translate(-50%, -100%)',
     };
   }
 
-  // Fallback: Sticky position fixed directly 8px BELOW selection in UI
+  // Fallback: Position absolute 8px BELOW selection line relative to document.body
   return {
-    position: 'fixed',
-    top: `${rect.bottom + gap}px`,
+    position: 'absolute',
+    top: `${rect.bottom + scrollY + gap}px`,
     left: `${clampedLeft}px`,
     transform: 'translate(-50%, 0)',
   };
@@ -96,7 +98,7 @@ export const HighlightPopover: React.FC<HighlightPopoverProps> = ({
 
   const content = (
     <>
-      {/* Sticky action toolbar centered directly ABOVE newly selected text */}
+      {/* Floating action toolbar centered directly ABOVE newly selected text */}
       {pendingSelection && (
         <div
           className="z-50 veyra-highlight-popover pointer-events-auto"
@@ -140,7 +142,7 @@ export const HighlightPopover: React.FC<HighlightPopoverProps> = ({
         </div>
       )}
 
-      {/* Sticky action toolbar centered directly ABOVE existing highlight */}
+      {/* Floating action toolbar centered directly ABOVE existing highlight */}
       {activeHighlightPopover && (
         <div
           className="z-50 veyra-highlight-popover pointer-events-auto"
