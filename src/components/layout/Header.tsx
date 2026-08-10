@@ -161,12 +161,9 @@ export const Header: React.FC<HeaderProps> = ({
           }`}
         >
           {authorName ? (
-            <div className="flex flex-col items-center justify-center text-center">
-              <span className="text-[10px] font-sans font-semibold tracking-widest text-muted uppercase">
-                Written by
-              </span>
-              <span className="font-serif text-sm sm:text-base font-normal text-ink truncate max-w-[160px] sm:max-w-[280px]">
-                {authorName}
+            <div className="flex items-center justify-center text-center">
+              <span className="font-serif text-sm sm:text-base font-normal text-ink truncate max-w-[220px] sm:max-w-[360px]">
+                Articles by {authorName}
               </span>
             </div>
           ) : pageTitle ? (
