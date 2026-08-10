@@ -29,66 +29,37 @@ interface HighlightPopoverProps {
 
 function computePillPosition(
   rect: DOMRect,
-  approxWidth: number = 135
+  approxWidth: number = 130
 ): React.CSSProperties {
   const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1200;
+  const gap = 8; // Small gap of 6–10px between text and action pill
+  const minEdgePadding = 12; // Keep pill inside viewport
 
-  const gap = 12; // 10-14px spacing from selection
-  const minPadding = 16; // edge margin
+  // Calculate centered horizontal position over selected range
+  const selectionCenterX = rect.left + rect.width / 2;
+  const clampedLeft = Math.max(
+    approxWidth / 2 + minEdgePadding,
+    Math.min(viewportWidth - approxWidth / 2 - minEdgePadding, selectionCenterX)
+  );
 
-  // 1. Prefer placing on the SAME LINE to the right of selection if room exists
-  const rightSpace = viewportWidth - rect.right - gap;
-  if (rightSpace >= approxWidth + minPadding) {
-    const top = rect.top + rect.height / 2;
-    const left = rect.right + gap;
+  // Check if there is enough space above the selection (header / screen top offset)
+  const isTooCloseToTop = rect.top < 44;
+
+  if (!isTooCloseToTop) {
+    // Position centered directly ABOVE selected text with 8px gap
     return {
       position: 'fixed',
-      top: `${top}px`,
-      left: `${left}px`,
-      transform: 'translateY(-50%)',
-    };
-  }
-
-  // 2. Otherwise place on the SAME LINE to the left of selection if room exists
-  const leftSpace = rect.left - gap;
-  if (leftSpace >= approxWidth + minPadding) {
-    const top = rect.top + rect.height / 2;
-    const left = rect.left - gap - approxWidth;
-    return {
-      position: 'fixed',
-      top: `${top}px`,
-      left: `${left}px`,
-      transform: 'translateY(-50%)',
-    };
-  }
-
-  // 3. Fallback: Place slightly above/below selection if horizontal space is constrained
-  if (rect.top >= 48) {
-    const top = rect.top - gap;
-    const rawLeft = rect.left + rect.width / 2;
-    const left = Math.max(
-      approxWidth / 2 + minPadding,
-      Math.min(viewportWidth - approxWidth / 2 - minPadding, rawLeft)
-    );
-    return {
-      position: 'fixed',
-      top: `${top}px`,
-      left: `${left}px`,
+      top: `${rect.top - gap}px`,
+      left: `${clampedLeft}px`,
       transform: 'translate(-50%, -100%)',
     };
   }
 
-  // Below selection fallback
-  const top = rect.bottom + gap;
-  const rawLeft = rect.left + rect.width / 2;
-  const left = Math.max(
-    approxWidth / 2 + minPadding,
-    Math.min(viewportWidth - approxWidth / 2 - minPadding, rawLeft)
-  );
+  // Fallback: Position centered directly BELOW selected text with 8px gap
   return {
     position: 'fixed',
-    top: `${top}px`,
-    left: `${left}px`,
+    top: `${rect.bottom + gap}px`,
+    left: `${clampedLeft}px`,
     transform: 'translate(-50%, 0)',
   };
 }
@@ -104,7 +75,7 @@ export const HighlightPopover: React.FC<HighlightPopoverProps> = ({
 }) => {
   return (
     <>
-      {/* Floating pill for newly selected text: [ Highlight ] */}
+      {/* Floating action pill centered directly ABOVE selected text: [ Highlight ] */}
       {pendingSelection && (
         <div
           className="z-50 veyra-highlight-popover pointer-events-auto"
@@ -134,7 +105,7 @@ export const HighlightPopover: React.FC<HighlightPopoverProps> = ({
         </div>
       )}
 
-      {/* Floating pill for existing highlighted text: [ Remove highlight ] */}
+      {/* Floating action pill centered directly ABOVE existing highlight: [ Remove highlight ] */}
       {activeHighlightPopover && (
         <div
           className="z-50 veyra-highlight-popover pointer-events-auto"
