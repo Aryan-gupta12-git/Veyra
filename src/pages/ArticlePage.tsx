@@ -24,7 +24,7 @@ export const ArticlePage: React.FC = () => {
   const [hasLiked, setHasLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(0);
   const [liking, setLiking] = useState(false);
-  const [heartParticles, setHeartParticles] = useState<{ id: number; x: number; y: number; rot: number; size: number }[]>([]);
+  const [heartParticles, setHeartParticles] = useState<{ id: number; x: number; y: number; rot: number; size: number; delay: number }[]>([]);
 
   const loadedIdRef = useRef<string | null>(null);
 
@@ -92,15 +92,21 @@ export const ArticlePage: React.FC = () => {
       setArticle((prev) => (prev ? { ...prev, likes: res.likes, hasLiked: res.liked } : null));
 
       if (res.liked) {
-        const particles = Array.from({ length: 9 }).map((_, i) => ({
-          id: Date.now() + i,
-          x: (Math.random() - 0.5) * 54,
-          y: -35 - Math.random() * 40,
-          rot: (Math.random() - 0.5) * 70,
-          size: Math.random() > 0.4 ? 14 : 10,
-        }));
+        const count = 9;
+        const particles = Array.from({ length: count }).map((_, i) => {
+          const angle = (i / count) * Math.PI * 2 + (Math.random() - 0.5) * 0.4;
+          const distance = 35 + Math.random() * 30;
+          return {
+            id: Date.now() + i,
+            x: Math.cos(angle) * distance,
+            y: Math.sin(angle) * distance - 30,
+            rot: (Math.random() - 0.5) * 60,
+            size: Math.random() > 0.4 ? 14 : 10,
+            delay: i * 25,
+          };
+        });
         setHeartParticles(particles);
-        setTimeout(() => setHeartParticles([]), 900);
+        setTimeout(() => setHeartParticles([]), 1200);
       }
     } catch (err: any) {
       console.error('Error toggling like:', err);
@@ -225,9 +231,10 @@ export const ArticlePage: React.FC = () => {
                           className="absolute top-0 left-1 pointer-events-none z-50 animate-heart-pop"
                           style={
                             {
-                              '--tw-translate-x': `${p.x}px`,
-                              '--tw-translate-y': `${p.y}px`,
-                              '--tw-rotate': `${p.rot}deg`,
+                              '--pop-x': `${p.x}px`,
+                              '--pop-y': `${p.y}px`,
+                              '--pop-r': `${p.rot}deg`,
+                              animationDelay: `${p.delay}ms`,
                             } as React.CSSProperties
                           }
                         >
