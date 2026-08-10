@@ -135,9 +135,9 @@ export const Header: React.FC<HeaderProps> = ({
     >
       {/* Triple Tap Quick Toast Notification */}
       {showTripleTapToast && (
-        <div className="absolute top-16 left-1/2 -translate-x-1/2 z-50 px-3.5 py-1.5 rounded-full bg-surface/95 border border-border/80 shadow-md backdrop-blur-md text-xs font-medium text-ink flex items-center gap-2 animate-fade-in pointer-events-none">
-          <Search className="w-3.5 h-3.5 text-muted" />
-          <span>Search activated (Triple Tap)</span>
+        <div className="absolute top-18 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-full bg-surface/60 border border-border/60 shadow-md backdrop-blur-xl text-xs font-medium text-ink flex items-center gap-2 animate-fade-in pointer-events-none select-none">
+          <Search className="w-3.5 h-3.5 text-muted shrink-0" />
+          <span className="tracking-tight">Search activated</span>
         </div>
       )}
 
