@@ -194,6 +194,22 @@ export const ArticleHighlightManager: React.FC<ArticleHighlightManagerProps> = (
     }
   };
 
+  const handleSaveKnowledgeForActive = async () => {
+    if (!activeHighlightPopover) return;
+    const h = activeHighlightPopover.highlight;
+    const ok = await addKnowledge({
+      selectedText: h.selectedText,
+      startOffset: h.startOffset,
+      endOffset: h.endOffset,
+      contextBefore: h.contextBefore || '',
+      contextAfter: h.contextAfter || '',
+    });
+
+    if (ok) {
+      setActiveHighlightPopover(null);
+    }
+  };
+
   const handleRemoveHighlight = async () => {
     if (!activeHighlightPopover) return;
     const ok = await removeHighlight(activeHighlightPopover.highlight.id);
@@ -217,6 +233,7 @@ export const ArticleHighlightManager: React.FC<ArticleHighlightManagerProps> = (
       deleting={deleting}
       onSaveHighlight={handleSaveHighlight}
       onSaveKnowledge={handleSaveKnowledge}
+      onSaveKnowledgeForActive={handleSaveKnowledgeForActive}
       onRemoveHighlight={handleRemoveHighlight}
       onDismiss={handleDismiss}
     />
