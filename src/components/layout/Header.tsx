@@ -277,24 +277,26 @@ export const Header: React.FC<HeaderProps> = ({
                     </Link>
 
                     {!isAdmin && (
-                      <Link
-                        to="/memory-feed"
-                        onClick={() => setProfileMenuOpen(false)}
-                        className="group flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium text-muted hover:text-ink hover:bg-black/[0.03] dark:hover:bg-white/[0.04] transition-colors"
-                      >
-                        <Brain className="w-4 h-4 text-ink/80 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors shrink-0" />
-                        <span>Memory</span>
-                      </Link>
-                    )}
+                      <>
+                        <Link
+                          to="/memory-feed"
+                          onClick={() => setProfileMenuOpen(false)}
+                          className="group flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium text-muted hover:text-ink hover:bg-black/[0.03] dark:hover:bg-white/[0.04] transition-colors"
+                        >
+                          <Brain className="w-4 h-4 text-ink/80 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors shrink-0" />
+                          <span>Memory</span>
+                        </Link>
 
-                    <Link
-                      to="/liked"
-                      onClick={() => setProfileMenuOpen(false)}
-                      className="group flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium text-muted hover:text-ink hover:bg-black/[0.03] dark:hover:bg-white/[0.04] transition-colors"
-                    >
-                      <Heart className="w-4 h-4 text-ink/80 group-hover:text-red-500 dark:group-hover:text-red-400 transition-colors shrink-0" />
-                      <span>Liked Articles</span>
-                    </Link>
+                        <Link
+                          to="/liked"
+                          onClick={() => setProfileMenuOpen(false)}
+                          className="group flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium text-muted hover:text-ink hover:bg-black/[0.03] dark:hover:bg-white/[0.04] transition-colors"
+                        >
+                          <Heart className="w-4 h-4 text-ink/80 group-hover:text-red-500 dark:group-hover:text-red-400 transition-colors shrink-0" />
+                          <span>Liked Articles</span>
+                        </Link>
+                      </>
+                    )}
                   </div>
 
                   <div className="pt-1 border-t border-border/50">
