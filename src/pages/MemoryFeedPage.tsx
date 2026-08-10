@@ -115,17 +115,17 @@ export const MemoryFeedPage: React.FC = () => {
               <div
                 key={item.id}
                 onClick={() => handleCardClick(item)}
-                className="flex flex-col justify-between p-6 rounded-xl border border-border/70 bg-surface/80 hover:border-ink transition-all shadow-xs cursor-pointer group hover:shadow-md"
+                className="group flex flex-col justify-between h-full border border-border/90 bg-surface/50 hover:bg-surface hover:border-ink hover:shadow-md hover:-translate-y-1 rounded-xl p-6 sm:p-7 transition-all duration-300 ease-out cursor-pointer"
               >
                 {/* Highlighted Quote Text */}
                 <div className="mb-6">
-                  <p className="font-serif text-base sm:text-lg font-normal text-ink leading-snug tracking-tight mb-2 italic">
+                  <p className="font-serif text-base sm:text-lg font-normal text-ink leading-snug tracking-tight mb-2 italic group-hover:text-ink/85 transition-colors">
                     “{item.selectedText}”
                   </p>
                 </div>
 
                 {/* Article Info */}
-                <div className="pt-4 border-t border-border/40 space-y-1">
+                <div className="pt-4 border-t border-border/60 text-[11px] font-sans text-muted group-hover:border-border/80 transition-colors mt-auto shrink-0 space-y-1">
                   <div className="flex items-center gap-1.5 text-xs font-medium text-ink group-hover:underline truncate">
                     <BookOpen className="w-3.5 h-3.5 text-muted shrink-0" />
                     <span className="truncate">{item.article?.title || 'Original Article'}</span>
