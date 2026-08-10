@@ -1,5 +1,5 @@
-import React from 'react';
-import { Highlighter, Trash2, LogIn } from 'lucide-react';
+import React, { useState } from 'react';
+import { Highlighter, Copy, Check, Trash2, LogIn } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Highlight } from '../../types/highlight';
 
@@ -29,7 +29,7 @@ interface HighlightPopoverProps {
 
 function computePillPosition(
   rect: DOMRect,
-  approxWidth: number = 130
+  approxWidth: number = 84
 ): React.CSSProperties {
   const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1200;
   const gap = 8; // Small gap of 6–10px between text and action pill
@@ -73,53 +73,98 @@ export const HighlightPopover: React.FC<HighlightPopoverProps> = ({
   onSaveHighlight,
   onRemoveHighlight,
 }) => {
+  const [copiedText, setCopiedText] = useState(false);
+
+  const handleCopyText = (text: string) => {
+    if (!text) return;
+    navigator.clipboard.writeText(text);
+    setCopiedText(true);
+    setTimeout(() => setCopiedText(false), 1500);
+  };
+
   return (
     <>
-      {/* Floating action pill centered directly ABOVE selected text: [ Highlight ] */}
+      {/* Floating icon action toolbar centered directly ABOVE newly selected text */}
       {pendingSelection && (
         <div
           className="z-50 veyra-highlight-popover pointer-events-auto"
-          style={computePillPosition(pendingSelection.rect, 130)}
+          style={computePillPosition(pendingSelection.rect, 84)}
         >
-          <div className="flex items-center px-3 py-1 rounded-full border border-border/80 bg-surface/95 shadow-xs backdrop-blur-md text-[11px] font-sans font-medium text-ink animate-fade-in select-none">
+          <div className="flex items-center gap-0.5 p-1 rounded-full border border-border/80 bg-surface/95 shadow-md backdrop-blur-md text-ink animate-fade-in select-none">
+            {/* Copy Icon Button */}
+            <button
+              type="button"
+              onClick={() => handleCopyText(pendingSelection.selectedText)}
+              className="p-1.5 rounded-full text-ink/80 hover:text-ink hover:bg-black/[0.06] dark:hover:bg-white/[0.08] active:scale-95 transition-all cursor-pointer"
+              title={copiedText ? 'Copied!' : 'Copy text'}
+            >
+              {copiedText ? (
+                <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+              ) : (
+                <Copy className="w-3.5 h-3.5 shrink-0" />
+              )}
+            </button>
+
+            {/* Vertical Divider */}
+            <div className="w-[1px] h-3.5 bg-border/50 my-auto mx-0.5" />
+
+            {/* Highlight Icon Button */}
             {isAuthenticated ? (
               <button
                 type="button"
                 onClick={onSaveHighlight}
                 disabled={saving}
-                className="flex items-center gap-1 text-ink hover:text-muted transition-colors cursor-pointer disabled:opacity-50"
+                className="p-1.5 rounded-full text-amber-700 dark:text-amber-400 hover:bg-amber-500/10 active:scale-95 transition-all cursor-pointer disabled:opacity-50"
+                title={saving ? 'Saving...' : 'Highlight'}
               >
-                <Highlighter className="w-3 h-3 text-amber-700 dark:text-amber-400 shrink-0" />
-                <span>{saving ? 'Saving...' : 'Highlight'}</span>
+                <Highlighter className="w-3.5 h-3.5 shrink-0" />
               </button>
             ) : (
               <Link
                 to="/login"
-                className="flex items-center gap-1 text-ink hover:text-muted transition-colors cursor-pointer"
+                className="p-1.5 rounded-full text-muted hover:text-ink hover:bg-black/[0.06] dark:hover:bg-white/[0.08] active:scale-95 transition-all cursor-pointer"
+                title="Sign in to highlight"
               >
-                <LogIn className="w-3 h-3 text-muted shrink-0" />
-                <span>Sign in to highlight</span>
+                <LogIn className="w-3.5 h-3.5 shrink-0" />
               </Link>
             )}
           </div>
         </div>
       )}
 
-      {/* Floating action pill centered directly ABOVE existing highlight: [ Remove highlight ] */}
+      {/* Floating icon action toolbar centered directly ABOVE existing highlight */}
       {activeHighlightPopover && (
         <div
           className="z-50 veyra-highlight-popover pointer-events-auto"
-          style={computePillPosition(activeHighlightPopover.rect, 155)}
+          style={computePillPosition(activeHighlightPopover.rect, 84)}
         >
-          <div className="flex items-center px-3 py-1 rounded-full border border-border/80 bg-surface/95 shadow-xs backdrop-blur-md text-[11px] font-sans font-medium text-ink animate-fade-in select-none">
+          <div className="flex items-center gap-0.5 p-1 rounded-full border border-border/80 bg-surface/95 shadow-md backdrop-blur-md text-ink animate-fade-in select-none">
+            {/* Copy Icon Button */}
+            <button
+              type="button"
+              onClick={() => handleCopyText(activeHighlightPopover.highlight.selectedText)}
+              className="p-1.5 rounded-full text-ink/80 hover:text-ink hover:bg-black/[0.06] dark:hover:bg-white/[0.08] active:scale-95 transition-all cursor-pointer"
+              title={copiedText ? 'Copied!' : 'Copy text'}
+            >
+              {copiedText ? (
+                <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+              ) : (
+                <Copy className="w-3.5 h-3.5 shrink-0" />
+              )}
+            </button>
+
+            {/* Vertical Divider */}
+            <div className="w-[1px] h-3.5 bg-border/50 my-auto mx-0.5" />
+
+            {/* Remove Highlight Icon Button */}
             <button
               type="button"
               onClick={onRemoveHighlight}
               disabled={deleting}
-              className="flex items-center gap-1 text-red-600 dark:text-red-400 hover:opacity-80 transition-opacity cursor-pointer disabled:opacity-50"
+              className="p-1.5 rounded-full text-red-600 dark:text-red-400 hover:bg-red-500/10 active:scale-95 transition-all cursor-pointer disabled:opacity-50"
+              title={deleting ? 'Removing...' : 'Remove highlight'}
             >
-              <Trash2 className="w-3 h-3 shrink-0" />
-              <span>{deleting ? 'Removing...' : 'Remove highlight'}</span>
+              <Trash2 className="w-3.5 h-3.5 shrink-0" />
             </button>
           </div>
         </div>
