@@ -119,7 +119,7 @@ export const ArticlePage: React.FC = () => {
 
   const handleTitleDoubleClick = (e: React.MouseEvent) => {
     e.preventDefault();
-    if (!hasLiked && !liking) {
+    if (!liking) {
       handleToggleLike();
     }
   };
