@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Header from '../components/layout/Header';
@@ -11,7 +11,7 @@ interface AuthPageProps {
 
 export const AuthPage: React.FC<AuthPageProps> = ({ isSignUp = false }) => {
   const navigate = useNavigate();
-  const { user, isAuthenticated, logout, isAdmin, login, signup, loading: authLoading } = useAuth();
+  const { isAuthenticated, isAdmin, login, signup, loading: authLoading } = useAuth();
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -19,21 +19,12 @@ export const AuthPage: React.FC<AuthPageProps> = ({ isSignUp = false }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Track if user was ALREADY logged in when they arrived/navigated back to this page
-  const wasAlreadyAuthenticated = useRef(isAuthenticated);
-
+  // If already authenticated, redirect logged in users back to their feed/admin page
   useEffect(() => {
-    if (wasAlreadyAuthenticated.current && isAuthenticated && !authLoading) {
-      const confirmLogout = window.confirm(
-        `You are currently logged in as ${user?.name || 'User'}. Do you want to log out?`
-      );
-      if (confirmLogout) {
-        logout();
-      } else {
-        navigate(isAdmin ? '/admin' : '/', { replace: true });
-      }
+    if (isAuthenticated && !authLoading) {
+      navigate(isAdmin ? '/admin' : '/', { replace: true });
     }
-  }, [isAuthenticated, authLoading]);
+  }, [isAuthenticated, authLoading, isAdmin, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
