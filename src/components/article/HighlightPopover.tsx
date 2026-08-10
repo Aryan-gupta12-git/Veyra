@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
-import { Brain, Highlighter, Copy, Trash2, LogIn } from 'lucide-react';
+import { Brain, Highlighter, Copy, Trash2, LogIn, Check } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Highlight } from '../../types/highlight';
 
@@ -84,34 +84,56 @@ export const HighlightPopover: React.FC<HighlightPopoverProps> = ({
   onRemoveHighlight,
   onDismiss,
 }) => {
+  const [activeTick, setActiveTick] = useState<'brain' | 'highlight' | 'copy' | 'trash' | null>(null);
+
   const handleCopyText = (text: string) => {
     if (!text) return;
     navigator.clipboard.writeText(text);
-    onDismiss();
+    setActiveTick('copy');
+    setTimeout(() => {
+      setActiveTick(null);
+      onDismiss();
+    }, 650);
   };
 
   const handleSaveHighlight = () => {
+    setActiveTick('highlight');
     onSaveHighlight();
-    onDismiss();
+    setTimeout(() => {
+      setActiveTick(null);
+      onDismiss();
+    }, 650);
   };
 
   const handleSaveKnowledge = () => {
+    setActiveTick('brain');
     onSaveKnowledge();
-    onDismiss();
+    setTimeout(() => {
+      setActiveTick(null);
+      onDismiss();
+    }, 650);
   };
 
   const handleSaveKnowledgeForActive = () => {
+    setActiveTick('brain');
     if (onSaveKnowledgeForActive) {
       onSaveKnowledgeForActive();
     } else {
       onSaveKnowledge();
     }
-    onDismiss();
+    setTimeout(() => {
+      setActiveTick(null);
+      onDismiss();
+    }, 650);
   };
 
   const handleRemove = () => {
+    setActiveTick('trash');
     onRemoveHighlight();
-    onDismiss();
+    setTimeout(() => {
+      setActiveTick(null);
+      onDismiss();
+    }, 650);
   };
 
   const content = (
@@ -128,11 +150,15 @@ export const HighlightPopover: React.FC<HighlightPopoverProps> = ({
               <button
                 type="button"
                 onClick={handleSaveKnowledge}
-                disabled={saving}
+                disabled={saving || !!activeTick}
                 className="p-1.5 rounded-lg text-ink/80 hover:text-purple-600 dark:hover:text-purple-400 active:scale-95 transition-all cursor-pointer disabled:opacity-50"
                 title="Add to Memory"
               >
-                <Brain className="w-3.5 h-3.5 shrink-0" />
+                {activeTick === 'brain' ? (
+                  <Check className="w-3.5 h-3.5 text-ink animate-fade-in shrink-0" />
+                ) : (
+                  <Brain className="w-3.5 h-3.5 shrink-0" />
+                )}
               </button>
             ) : (
               <Link
@@ -152,11 +178,15 @@ export const HighlightPopover: React.FC<HighlightPopoverProps> = ({
               <button
                 type="button"
                 onClick={handleSaveHighlight}
-                disabled={saving}
+                disabled={saving || !!activeTick}
                 className="p-1.5 rounded-lg text-ink/80 hover:text-amber-600 dark:hover:text-amber-400 active:scale-95 transition-all cursor-pointer disabled:opacity-50"
                 title="Highlight text"
               >
-                <Highlighter className="w-3.5 h-3.5 shrink-0" />
+                {activeTick === 'highlight' ? (
+                  <Check className="w-3.5 h-3.5 text-ink animate-fade-in shrink-0" />
+                ) : (
+                  <Highlighter className="w-3.5 h-3.5 shrink-0" />
+                )}
               </button>
             ) : (
               <Link
@@ -175,10 +205,15 @@ export const HighlightPopover: React.FC<HighlightPopoverProps> = ({
             <button
               type="button"
               onClick={() => handleCopyText(pendingSelection.selectedText)}
+              disabled={!!activeTick}
               className="p-1.5 rounded-lg text-ink/80 hover:text-ink active:scale-95 transition-all cursor-pointer"
               title="Copy text"
             >
-              <Copy className="w-3.5 h-3.5 shrink-0" />
+              {activeTick === 'copy' ? (
+                <Check className="w-3.5 h-3.5 text-ink animate-fade-in shrink-0" />
+              ) : (
+                <Copy className="w-3.5 h-3.5 shrink-0" />
+              )}
             </button>
           </div>
         </div>
@@ -196,11 +231,15 @@ export const HighlightPopover: React.FC<HighlightPopoverProps> = ({
               <button
                 type="button"
                 onClick={handleSaveKnowledgeForActive}
-                disabled={saving}
+                disabled={saving || !!activeTick}
                 className="p-1.5 rounded-lg text-ink/80 hover:text-purple-600 dark:hover:text-purple-400 active:scale-95 transition-all cursor-pointer disabled:opacity-50"
                 title="Add to Memory"
               >
-                <Brain className="w-3.5 h-3.5 shrink-0" />
+                {activeTick === 'brain' ? (
+                  <Check className="w-3.5 h-3.5 text-ink animate-fade-in shrink-0" />
+                ) : (
+                  <Brain className="w-3.5 h-3.5 shrink-0" />
+                )}
               </button>
             ) : (
               <Link
@@ -219,10 +258,15 @@ export const HighlightPopover: React.FC<HighlightPopoverProps> = ({
             <button
               type="button"
               onClick={() => handleCopyText(activeHighlightPopover.highlight.selectedText)}
+              disabled={!!activeTick}
               className="p-1.5 rounded-lg text-ink/80 hover:text-ink active:scale-95 transition-all cursor-pointer"
               title="Copy text"
             >
-              <Copy className="w-3.5 h-3.5 shrink-0" />
+              {activeTick === 'copy' ? (
+                <Check className="w-3.5 h-3.5 text-ink animate-fade-in shrink-0" />
+              ) : (
+                <Copy className="w-3.5 h-3.5 shrink-0" />
+              )}
             </button>
 
             {/* Vertical Divider */}
@@ -232,11 +276,15 @@ export const HighlightPopover: React.FC<HighlightPopoverProps> = ({
             <button
               type="button"
               onClick={handleRemove}
-              disabled={deleting}
+              disabled={deleting || !!activeTick}
               className="p-1.5 rounded-lg text-ink/80 hover:text-red-600 dark:hover:text-red-400 active:scale-95 transition-all cursor-pointer disabled:opacity-50"
               title="Remove highlight"
             >
-              <Trash2 className="w-3.5 h-3.5 shrink-0" />
+              {activeTick === 'trash' ? (
+                <Check className="w-3.5 h-3.5 text-ink animate-fade-in shrink-0" />
+              ) : (
+                <Trash2 className="w-3.5 h-3.5 shrink-0" />
+              )}
             </button>
           </div>
         </div>
