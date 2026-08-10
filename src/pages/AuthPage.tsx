@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Header from '../components/layout/Header';
@@ -19,8 +19,11 @@ export const AuthPage: React.FC<AuthPageProps> = ({ isSignUp = false }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Track if user was ALREADY logged in when they arrived/navigated back to this page
+  const wasAlreadyAuthenticated = useRef(isAuthenticated);
+
   useEffect(() => {
-    if (isAuthenticated && !authLoading) {
+    if (wasAlreadyAuthenticated.current && isAuthenticated && !authLoading) {
       const confirmLogout = window.confirm(
         `You are currently logged in as ${user?.name || 'User'}. Do you want to log out?`
       );
