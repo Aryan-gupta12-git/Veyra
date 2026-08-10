@@ -252,7 +252,10 @@ export const EditorPage: React.FC = () => {
 
                 {/* Dropdown Floating Menu */}
                 {dropdownOpen && (
-                  <div className="absolute left-14 top-full mt-2 z-50 w-56 p-1.5 rounded-xl border border-border/70 bg-surface shadow-md backdrop-blur-md max-h-60 overflow-y-auto space-y-0.5 animate-fade-in">
+                  <div
+                    data-lenis-prevent
+                    className="absolute left-14 top-full mt-2 z-50 w-56 p-1.5 rounded-xl border border-border/70 bg-surface shadow-md backdrop-blur-md max-h-60 overflow-y-auto overscroll-contain space-y-0.5 animate-fade-in"
+                  >
                     {topics.map((t) => {
                       const isSelected = topicId === t.id;
                       return (

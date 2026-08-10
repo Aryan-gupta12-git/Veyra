@@ -118,7 +118,10 @@ export const HomePage: React.FC = () => {
 
             {/* Dropdown Floating Menu */}
             {dropdownOpen && (
-              <div className="absolute left-12 sm:left-14 top-full mt-2 z-50 w-64 sm:w-72 p-2 rounded-xl border border-border/80 bg-surface shadow-lg backdrop-blur-md max-h-72 overflow-y-auto space-y-1 animate-fade-in">
+              <div
+                data-lenis-prevent
+                className="absolute left-12 sm:left-14 top-full mt-2 z-50 w-64 sm:w-72 p-2 rounded-xl border border-border/80 bg-surface shadow-lg backdrop-blur-md max-h-72 overflow-y-auto overscroll-contain space-y-1 animate-fade-in"
+              >
                 <button
                   type="button"
                   onClick={() => {
