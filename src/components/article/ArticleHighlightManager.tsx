@@ -142,6 +142,12 @@ export const ArticleHighlightManager: React.FC<ArticleHighlightManagerProps> = (
     }
   };
 
+  const handleDismiss = useCallback(() => {
+    setPendingSelection(null);
+    setActiveHighlightPopover(null);
+    window.getSelection()?.removeAllRanges();
+  }, []);
+
   return (
     <HighlightPopover
       pendingSelection={pendingSelection}
@@ -151,6 +157,7 @@ export const ArticleHighlightManager: React.FC<ArticleHighlightManagerProps> = (
       deleting={deleting}
       onSaveHighlight={handleSaveHighlight}
       onRemoveHighlight={handleRemoveHighlight}
+      onDismiss={handleDismiss}
     />
   );
 };
