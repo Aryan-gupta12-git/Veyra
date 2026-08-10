@@ -26,6 +26,9 @@ export const HeartLikeButton: React.FC<HeartLikeButtonProps> = ({
         dotLottieRef.current.play();
       } else {
         dotLottieRef.current.stop();
+        if (typeof (dotLottieRef.current as any).setFrame === 'function') {
+          (dotLottieRef.current as any).setFrame(0);
+        }
       }
     }
   }, [hasLiked]);
@@ -63,6 +66,9 @@ export const HeartLikeButton: React.FC<HeartLikeButtonProps> = ({
                   dotLottie.play();
                 } else {
                   dotLottie.stop();
+                  if (typeof (dotLottie as any).setFrame === 'function') {
+                    (dotLottie as any).setFrame(0);
+                  }
                 }
               }
             }}
