@@ -217,14 +217,16 @@ export const ArticlePage: React.FC = () => {
                         title={hasLiked ? 'Unlike article' : 'Like article'}
                       >
                         <Heart
-                          className={`w-4 h-4 transition-transform ${
-                            hasLiked ? 'fill-red-600 text-red-600 dark:fill-red-500 dark:text-red-500 scale-110 drop-shadow-xs' : ''
+                          className={`w-4 h-4 transition-colors ${
+                            hasLiked
+                              ? 'fill-red-600 text-red-600 dark:fill-red-500 dark:text-red-500 scale-110 animate-heart-pulse drop-shadow-xs'
+                              : 'scale-100'
                           }`}
                         />
                         <span className="text-[11px]">{likeCount}</span>
                       </button>
 
-                      {/* Floating Pop-out Heart Particles */}
+                      {/* Floating Pop-out Heart Particles (GPU Hardware-Accelerated) */}
                       {heartParticles.map((p) => (
                         <span
                           key={p.id}
