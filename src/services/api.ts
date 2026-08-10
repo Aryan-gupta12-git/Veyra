@@ -61,17 +61,41 @@ const FALLBACK_ARTICLES: Article[] = [
   },
 ];
 
-export async function fetchTopics(): Promise<Topic[]> {
+let articlesCache: Article[] | null = null;
+let topicsCache: Topic[] | null = null;
+let articlesCacheTimestamp = 0;
+let topicsCacheTimestamp = 0;
+const CACHE_TTL_MS = 10 * 60 * 1000; // 10 minutes cache TTL
+
+export function getHasCachedArticles(): boolean {
+  return articlesCache !== null && articlesCache.length > 0;
+}
+
+export function clearArticlesCache(): void {
+  articlesCache = null;
+  articlesCacheTimestamp = 0;
+}
+
+export async function fetchTopics(forceRefresh = false): Promise<Topic[]> {
+  const now = Date.now();
+  if (!forceRefresh && topicsCache && now - topicsCacheTimestamp < CACHE_TTL_MS) {
+    return topicsCache;
+  }
+
   try {
     const res = await fetch('/api/user/topics', { credentials: 'include' });
     if (res.ok) {
       const data = await res.json();
-      return data.topics || FALLBACK_TOPICS;
+      const result = data.topics || FALLBACK_TOPICS;
+      topicsCache = result;
+      topicsCacheTimestamp = now;
+      return result;
     }
   } catch (err) {
     console.warn('Backend API unreachable, using fallback topics:', err);
   }
-  return FALLBACK_TOPICS;
+
+  return topicsCache || FALLBACK_TOPICS;
 }
 
 export async function saveUserInterests(topicIds: string[]): Promise<User> {
@@ -92,11 +116,24 @@ export async function saveUserInterests(topicIds: string[]): Promise<User> {
     throw new Error(parsedErr.details || parsedErr.error || 'Failed to update interests');
   }
 
+  // Clear cache to reflect interest changes in article feed
+  clearArticlesCache();
+
   const data = await res.json();
   return data.user;
 }
 
-export async function fetchPublicArticles(topicSlug?: string, userId?: string): Promise<Article[]> {
+export async function fetchPublicArticles(topicSlug?: string, userId?: string, forceRefresh = false): Promise<Article[]> {
+  const now = Date.now();
+
+  if (!forceRefresh && articlesCache && now - articlesCacheTimestamp < CACHE_TTL_MS) {
+    let filtered = [...articlesCache];
+    if (topicSlug && topicSlug !== 'all' && topicSlug !== 'for-you') {
+      filtered = filtered.filter((a) => a.topic?.slug === topicSlug || a.category?.toLowerCase() === topicSlug.toLowerCase());
+    }
+    return filtered;
+  }
+
   try {
     const url = new URL('/api/articles', window.location.origin);
     if (topicSlug) url.searchParams.append('topic', topicSlug);
@@ -106,11 +143,17 @@ export async function fetchPublicArticles(topicSlug?: string, userId?: string): 
     if (res.ok) {
       const data = await res.json();
       if (data.articles && data.articles.length > 0) {
+        articlesCache = data.articles;
+        articlesCacheTimestamp = now;
         return data.articles;
       }
     }
   } catch (err) {
     console.warn('Backend API unreachable, using fallback articles:', err);
+  }
+
+  if (articlesCache) {
+    return articlesCache;
   }
 
   let filtered = [...FALLBACK_ARTICLES];
@@ -173,6 +216,7 @@ export async function createArticle(input: CreateArticleInput): Promise<Article>
 
     if (res.ok) {
       const data = await res.json();
+      clearArticlesCache();
       return data.article;
     }
 
@@ -204,6 +248,7 @@ export async function updateArticle(id: string, input: UpdateArticleInput): Prom
 
     if (res.ok) {
       const data = await res.json();
+      clearArticlesCache();
       return data.article;
     }
 
@@ -228,7 +273,10 @@ export async function deleteArticle(id: string): Promise<boolean> {
       credentials: 'include',
     });
 
-    if (res.ok) return true;
+    if (res.ok) {
+      clearArticlesCache();
+      return true;
+    }
 
     const responseText = await res.text();
     console.error('DELETE ARTICLE FAILED', res.status, responseText);
@@ -239,6 +287,7 @@ export async function deleteArticle(id: string): Promise<boolean> {
   const idx = FALLBACK_ARTICLES.findIndex((a) => a.id === id);
   if (idx !== -1) {
     FALLBACK_ARTICLES.splice(idx, 1);
+    clearArticlesCache();
     return true;
   }
 

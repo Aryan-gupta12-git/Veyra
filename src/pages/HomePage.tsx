@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Article } from '../types/article';
 import { Topic } from '../types/user';
-import { fetchPublicArticles, fetchTopics } from '../services/api';
+import { fetchPublicArticles, fetchTopics, getHasCachedArticles } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import Header from '../components/layout/Header';
 import Footer from '../components/layout/Footer';
@@ -17,7 +17,7 @@ export const HomePage: React.FC = () => {
   const [topics, setTopics] = useState<Topic[]>([]);
   const [selectedTopicId, setSelectedTopicId] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!getHasCachedArticles());
   const [error, setError] = useState<string | null>(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -46,7 +46,10 @@ export const HomePage: React.FC = () => {
 
   const loadData = async () => {
     try {
-      setLoading(true);
+      const hasCached = getHasCachedArticles();
+      if (!hasCached) {
+        setLoading(true);
+      }
       setError(null);
       const [articlesData, topicsData] = await Promise.all([
         fetchPublicArticles('all', user?.id),
