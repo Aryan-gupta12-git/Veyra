@@ -6,6 +6,7 @@ import { useAuth } from '../context/AuthContext';
 import Header from '../components/layout/Header';
 import Footer from '../components/layout/Footer';
 import ArticleCard from '../components/article/ArticleCard';
+import ArticleCardSkeleton from '../components/skeleton/ArticleCardSkeleton';
 import { Tag, ChevronDown, Check } from 'lucide-react';
 
 export const HomePage: React.FC = () => {
@@ -149,10 +150,8 @@ export const HomePage: React.FC = () => {
         </div>
         {/* Uniform Article Grid */}
         {loading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 animate-pulse py-6">
-            {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-              <div key={i} className="h-64 bg-border/20 rounded-xl p-6 space-y-4" />
-            ))}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 py-6 items-stretch">
+            <ArticleCardSkeleton count={8} />
           </div>
         ) : error ? (
           <div className="py-12 text-center border border-border/50 rounded-xl p-8 bg-surface/50 max-w-lg mx-auto">
@@ -172,7 +171,7 @@ export const HomePage: React.FC = () => {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 items-stretch">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 items-stretch animate-fade-in">
             {filteredArticles.map((article) => (
               <ArticleCard key={article.id} article={article} />
             ))}

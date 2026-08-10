@@ -17,3 +17,5 @@ dist-server/
 # OS / Editor files
 .DS_Store
 *.log
+.vercel
+.env*

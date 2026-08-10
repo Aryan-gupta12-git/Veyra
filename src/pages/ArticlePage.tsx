@@ -7,6 +7,7 @@ import { formatRelativeTime } from '../utils/relativeTime';
 import Header from '../components/layout/Header';
 import Footer from '../components/layout/Footer';
 import ArticleCard from '../components/article/ArticleCard';
+import ArticleSkeleton from '../components/skeleton/ArticleSkeleton';
 import { ArrowLeft, Share2, Check, Heart, Edit3 } from 'lucide-react';
 
 export const ArticlePage: React.FC = () => {
@@ -108,17 +109,7 @@ export const ArticlePage: React.FC = () => {
 
       <main className="flex-1 w-full">
         {loading ? (
-          <div className="max-w-[700px] mx-auto px-6 py-20 animate-pulse space-y-6">
-            <div className="h-4 bg-border/30 rounded w-20" />
-            <div className="h-12 bg-border/40 rounded w-full" />
-            <div className="h-12 bg-border/40 rounded w-4/5" />
-            <div className="h-4 bg-border/20 rounded w-48 mt-4" />
-            <div className="space-y-4 pt-12">
-              <div className="h-4 bg-border/20 rounded w-full" />
-              <div className="h-4 bg-border/20 rounded w-full" />
-              <div className="h-4 bg-border/20 rounded w-3/4" />
-            </div>
-          </div>
+          <ArticleSkeleton />
         ) : error || !article ? (
           <div className="max-w-[600px] mx-auto px-6 py-24 text-center">
             <h1 className="font-serif text-2xl font-normal text-ink mb-3">Article Unavailable</h1>
@@ -132,7 +123,7 @@ export const ArticlePage: React.FC = () => {
             </Link>
           </div>
         ) : (
-          <article className="max-w-[700px] mx-auto px-6 sm:px-8 pt-10 sm:pt-14 pb-16">
+          <article className="max-w-[700px] mx-auto px-6 sm:px-8 pt-10 sm:pt-14 pb-16 animate-fade-in">
             {/* Back Button */}
             <div className="mb-10">
               <Link
