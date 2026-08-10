@@ -48,8 +48,8 @@ export const HeartLikeButton: React.FC<HeartLikeButtonProps> = ({
         type="button"
         onClick={onToggleLike}
         disabled={disabled}
-        className={`flex items-center gap-1.5 transition-colors cursor-pointer disabled:opacity-50 relative group ${
-          hasLiked ? 'text-red-600 dark:text-red-500 font-semibold' : 'text-muted hover:text-ink'
+        className={`flex items-center gap-1.5 transition-colors cursor-pointer disabled:opacity-50 relative group font-medium ${
+          hasLiked ? 'text-red-600 dark:text-red-500' : 'text-muted hover:text-ink'
         }`}
         title={hasLiked ? 'Unlike article' : 'Like article'}
       >
@@ -73,7 +73,7 @@ export const HeartLikeButton: React.FC<HeartLikeButtonProps> = ({
             className="w-7 h-7 absolute -top-1 -left-1 pointer-events-none"
           />
         </div>
-        <span className="text-[11px] select-none ml-0.5">{likeCount}</span>
+        <span className="text-[11px] tabular-nums select-none">{likeCount}</span>
       </button>
     </div>
   );
