@@ -2,6 +2,43 @@ import { Response } from 'express';
 import { prisma } from '../config/db.js';
 import { AuthRequest } from '../middleware/authMiddleware.js';
 
+let tablesInitialized = false;
+
+async function ensureKnowledgeTableExists() {
+  if (tablesInitialized) return;
+  try {
+    await prisma.$executeRawUnsafe(`
+      CREATE TABLE IF NOT EXISTS public.highlights (
+        id TEXT PRIMARY KEY,
+        "userId" TEXT NOT NULL,
+        "articleId" TEXT NOT NULL,
+        "selectedText" TEXT NOT NULL,
+        "startOffset" INTEGER NOT NULL,
+        "endOffset" INTEGER NOT NULL,
+        "contextBefore" TEXT,
+        "contextAfter" TEXT,
+        "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+    await prisma.$executeRawUnsafe(`
+      CREATE TABLE IF NOT EXISTS public.knowledge_items (
+        id TEXT PRIMARY KEY,
+        "userId" TEXT NOT NULL,
+        "articleId" TEXT NOT NULL,
+        "selectedText" TEXT NOT NULL,
+        "startOffset" INTEGER NOT NULL,
+        "endOffset" INTEGER NOT NULL,
+        "contextBefore" TEXT,
+        "contextAfter" TEXT,
+        "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+    tablesInitialized = true;
+  } catch (err) {
+    console.warn('[DB AUTO-INIT NOTICE]', err);
+  }
+}
+
 export const createKnowledgeItem = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const userId = req.user?.id;
@@ -9,6 +46,8 @@ export const createKnowledgeItem = async (req: AuthRequest, res: Response): Prom
       res.status(401).json({ error: 'Unauthorized' });
       return;
     }
+
+    await ensureKnowledgeTableExists();
 
     const articleParam = req.params.articleId;
     const { selectedText, startOffset, endOffset, contextBefore, contextAfter } = req.body;
@@ -123,6 +162,8 @@ export const getUserKnowledgeItems = async (req: AuthRequest, res: Response): Pr
       res.status(401).json({ error: 'Unauthorized' });
       return;
     }
+
+    await ensureKnowledgeTableExists();
 
     const knowledgeItems = await prisma.knowledgeItem.findMany({
       where: { userId },
