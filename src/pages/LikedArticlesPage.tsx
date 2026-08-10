@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Article } from '../types/article';
 import { fetchUserLikedArticles } from '../services/api';
 import { useAuth } from '../context/AuthContext';
@@ -10,10 +10,20 @@ import { ArrowLeft } from 'lucide-react';
 
 export const LikedArticlesPage: React.FC = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [articles, setArticles] = useState<Article[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const handleBack = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (window.history.length > 1) {
+      navigate(-1);
+    } else {
+      navigate('/');
+    }
+  };
 
   useEffect(() => {
     loadLikedArticles();
@@ -58,13 +68,14 @@ export const LikedArticlesPage: React.FC = () => {
       <main className="flex-1 min-h-[calc(100vh-4rem)] max-w-[1440px] mx-auto px-6 sm:px-8 pt-6 sm:pt-8 pb-16 w-full flex flex-col">
         {/* Back Link */}
         <div className="mb-6">
-          <Link
-            to="/"
-            className="inline-flex items-center gap-1.5 text-xs font-medium text-muted hover:text-ink transition-colors group"
+          <button
+            type="button"
+            onClick={handleBack}
+            className="inline-flex items-center gap-1.5 text-xs font-medium text-muted hover:text-ink transition-colors group cursor-pointer"
           >
             <ArrowLeft className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-1" />
             <span>Back to Articles</span>
-          </Link>
+          </button>
         </div>
 
         {/* Uniform Article Grid */}

@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Article } from '../types/article';
 import { fetchArticleByIdOrSlug, fetchPublicArticles, toggleLikeArticle } from '../services/api';
 import { useAuth } from '../context/AuthContext';
@@ -12,6 +12,7 @@ import { ArrowLeft, Share2, Check, Heart, Edit3 } from 'lucide-react';
 
 export const ArticlePage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const { user, isAdmin } = useAuth();
 
   const [article, setArticle] = useState<Article | null>(null);
@@ -102,6 +103,15 @@ export const ArticlePage: React.FC = () => {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const handleBack = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (window.history.length > 1) {
+      navigate(-1);
+    } else {
+      navigate('/');
+    }
+  };
+
   const authorDisplayName = article ? article.authorName || article.author?.name || 'Aryan Gupta' : 'Aryan Gupta';
 
   return (
@@ -115,25 +125,27 @@ export const ArticlePage: React.FC = () => {
           <div className="max-w-[600px] mx-auto px-6 py-24 text-center">
             <h1 className="font-serif text-2xl font-normal text-ink mb-3">Article Unavailable</h1>
             <p className="text-muted text-sm mb-6">{error || 'The requested article could not be found.'}</p>
-            <Link
-              to="/"
-              className="inline-flex items-center gap-2 px-4 py-2 text-xs font-medium bg-ink text-paper rounded-lg hover:opacity-90 transition-opacity"
+            <button
+              type="button"
+              onClick={handleBack}
+              className="inline-flex items-center gap-2 px-4 py-2 text-xs font-medium bg-ink text-paper rounded-lg hover:opacity-90 transition-opacity cursor-pointer"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
               <span>Back to Articles</span>
-            </Link>
+            </button>
           </div>
         ) : (
           <article className="max-w-[700px] mx-auto px-6 sm:px-8 pt-10 sm:pt-14 pb-16 animate-fade-in">
             {/* Back Button */}
             <div className="mb-10">
-              <Link
-                to="/"
-                className="inline-flex items-center gap-1.5 text-xs font-medium text-muted hover:text-ink transition-colors group"
+              <button
+                type="button"
+                onClick={handleBack}
+                className="inline-flex items-center gap-1.5 text-xs font-medium text-muted hover:text-ink transition-colors group cursor-pointer"
               >
                 <ArrowLeft className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-1" />
                 <span>Back to Articles</span>
-              </Link>
+              </button>
             </div>
 
             {/* Article Header */}

@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import React, { useEffect, useRef } from 'react';
+import { Routes, Route, Navigate, useLocation, useNavigationType } from 'react-router-dom';
 import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import HomePage from './pages/HomePage';
@@ -13,13 +13,51 @@ import ProfilePage from './pages/ProfilePage';
 import LikedArticlesPage from './pages/LikedArticlesPage';
 import { Loader2 } from 'lucide-react';
 
-// ScrollToTop helper component to reset scroll position on route changes
+const scrollPositionsMap = new Map<string, number>();
+
+// Smart Scroll Restoration helper component
 function ScrollToTop() {
-  const { pathname } = useLocation();
+  const location = useLocation();
+  const navigationType = useNavigationType();
+  const isPopRef = useRef(false);
 
   useEffect(() => {
-    window.scrollTo(0, 0);
-  }, [pathname]);
+    const handleScroll = () => {
+      if (!isPopRef.current) {
+        scrollPositionsMap.set(location.pathname, window.scrollY);
+        if (location.key) {
+          scrollPositionsMap.set(location.key, window.scrollY);
+        }
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [location.pathname, location.key]);
+
+  useEffect(() => {
+    if (navigationType === 'POP') {
+      isPopRef.current = true;
+      const savedY = scrollPositionsMap.get(location.key) ?? scrollPositionsMap.get(location.pathname) ?? 0;
+
+      window.scrollTo(0, savedY);
+      const t1 = setTimeout(() => window.scrollTo(0, savedY), 30);
+      const t2 = setTimeout(() => window.scrollTo(0, savedY), 100);
+      const t3 = setTimeout(() => {
+        window.scrollTo(0, savedY);
+        isPopRef.current = false;
+      }, 250);
+
+      return () => {
+        clearTimeout(t1);
+        clearTimeout(t2);
+        clearTimeout(t3);
+      };
+    } else {
+      isPopRef.current = false;
+      window.scrollTo(0, 0);
+    }
+  }, [location.pathname, location.key, navigationType]);
 
   return null;
 }
