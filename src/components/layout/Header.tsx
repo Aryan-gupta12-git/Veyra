@@ -132,7 +132,7 @@ export const Header: React.FC<HeaderProps> = ({
 
   return (
     <header
-      className={`sticky top-0 z-50 w-full navbar-surface border-b transform-gpu will-change-transform transition-transform duration-400 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+      className={`sticky top-0 z-50 w-full navbar-surface border-b transform-gpu will-change-transform transition-transform duration-200 ease-out ${
         isVisible ? 'translate-y-0' : '-translate-y-full'
       } ${
         isScrolled ? 'border-border/80 shadow-xs' : 'border-border/40'

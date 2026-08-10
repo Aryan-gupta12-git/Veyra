@@ -37,15 +37,11 @@ function ScrollToTop() {
   }, [location.pathname, location.key]);
 
   useEffect(() => {
-    const lenis = (window as any).lenisInstance;
     if (navigationType === 'POP') {
       isPopRef.current = true;
       const savedY = scrollPositionsMap.get(location.key) ?? scrollPositionsMap.get(location.pathname) ?? 0;
 
       const performScroll = () => {
-        if (lenis) {
-          lenis.scrollTo(savedY, { immediate: true });
-        }
         window.scrollTo(0, savedY);
       };
 
@@ -64,9 +60,6 @@ function ScrollToTop() {
       };
     } else {
       isPopRef.current = false;
-      if (lenis) {
-        lenis.scrollTo(0, { immediate: true });
-      }
       window.scrollTo(0, 0);
     }
   }, [location.pathname, location.key, navigationType]);
