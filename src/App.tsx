@@ -1,5 +1,5 @@
-import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import HomePage from './pages/HomePage';
@@ -12,6 +12,17 @@ import AuthPage from './pages/AuthPage';
 import ProfilePage from './pages/ProfilePage';
 import LikedArticlesPage from './pages/LikedArticlesPage';
 import { Loader2 } from 'lucide-react';
+
+// ScrollToTop helper component to reset scroll position on route changes
+function ScrollToTop() {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+
+  return null;
+}
 
 // Route Guard for authenticated users
 function RequireAuth({ children }: { children: React.ReactNode }) {
@@ -65,7 +76,9 @@ export function AppContent() {
   const { isAdmin } = useAuth();
 
   return (
-    <Routes>
+    <>
+      <ScrollToTop />
+      <Routes>
       {/* Auth Routes */}
       <Route path="/login" element={<AuthPage isSignUp={false} />} />
       <Route path="/signup" element={<AuthPage isSignUp={true} />} />
@@ -143,6 +156,7 @@ export function AppContent() {
       {/* Catch-all Fallback */}
       <Route path="*" element={<Navigate to={isAdmin ? '/admin' : '/'} replace />} />
     </Routes>
+    </>
   );
 }
 

@@ -48,6 +48,7 @@ export const ArticlePage: React.FC = () => {
 
   const loadArticle = async (articleId: string) => {
     try {
+      window.scrollTo(0, 0);
       setLoading(true);
       setError(null);
       const data = await fetchArticleByIdOrSlug(articleId);

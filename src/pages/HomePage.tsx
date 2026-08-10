@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Article } from '../types/article';
 import { Topic } from '../types/user';
 import { fetchPublicArticles, fetchTopics } from '../services/api';
@@ -11,6 +12,7 @@ import { Tag, ChevronDown, Check } from 'lucide-react';
 
 export const HomePage: React.FC = () => {
   const { user } = useAuth();
+  const [searchParams] = useSearchParams();
   const [articles, setArticles] = useState<Article[]>([]);
   const [topics, setTopics] = useState<Topic[]>([]);
   const [selectedTopicId, setSelectedTopicId] = useState<string>('all');
@@ -19,6 +21,13 @@ export const HomePage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const qParam = searchParams.get('q') || searchParams.get('search');
+    if (qParam) {
+      setSearchQuery(qParam);
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     loadData();

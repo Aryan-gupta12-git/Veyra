@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import ThemeToggle from '../ui/ThemeToggle';
 import { useAuth } from '../../context/AuthContext';
 import { LogOut, Search, X, ShieldCheck, User as UserIcon, Heart, ChevronDown } from 'lucide-react';
@@ -21,14 +21,23 @@ export const Header: React.FC<HeaderProps> = ({
   pageTitle,
   hideThemeToggle = false,
 }) => {
+  const navigate = useNavigate();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
+  const [internalQuery, setInternalQuery] = useState('');
+  const [showTripleTapToast, setShowTripleTapToast] = useState(false);
+
   const { user, logout, isAdmin } = useAuth();
   const searchInputRef = useRef<HTMLInputElement>(null);
   const profileRef = useRef<HTMLDivElement>(null);
   const lastScrollY = useRef(0);
+
+  const tapCount = useRef(0);
+  const tapTimer = useRef<NodeJS.Timeout | null>(null);
+
+  const currentSearchValue = onSearchChange ? searchQuery : internalQuery;
 
   useEffect(() => {
     const handleScroll = () => {
@@ -75,6 +84,47 @@ export const Header: React.FC<HeaderProps> = ({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  const handleQueryChange = (val: string) => {
+    if (onSearchChange) {
+      onSearchChange(val);
+    } else {
+      setInternalQuery(val);
+      if (val.trim()) {
+        navigate(`/?q=${encodeURIComponent(val)}`);
+      }
+    }
+  };
+
+  const handleLogoClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    tapCount.current += 1;
+
+    if (tapTimer.current) {
+      clearTimeout(tapTimer.current);
+    }
+
+    if (tapCount.current >= 3) {
+      tapCount.current = 0;
+      setIsSearchOpen(true);
+      setShowTripleTapToast(true);
+      setTimeout(() => {
+        setShowTripleTapToast(false);
+      }, 2200);
+
+      setTimeout(() => {
+        searchInputRef.current?.focus();
+      }, 50);
+    } else {
+      tapTimer.current = setTimeout(() => {
+        const count = tapCount.current;
+        tapCount.current = 0;
+        if (count > 0 && count < 3) {
+          navigate(isAdmin ? '/admin' : '/');
+        }
+      }, 300);
+    }
+  };
+
   return (
     <header
       className={`sticky top-0 z-50 w-full navbar-surface border-b transform-gpu will-change-transform transition-transform duration-400 ease-[cubic-bezier(0.16,1,0.3,1)] ${
@@ -83,13 +133,23 @@ export const Header: React.FC<HeaderProps> = ({
         isScrolled ? 'border-border/80 shadow-xs' : 'border-border/40'
       }`}
     >
+      {/* Triple Tap Quick Toast Notification */}
+      {showTripleTapToast && (
+        <div className="absolute top-16 left-1/2 -translate-x-1/2 z-50 px-3.5 py-1.5 rounded-full bg-surface/95 border border-border/80 shadow-md backdrop-blur-md text-xs font-medium text-ink flex items-center gap-2 animate-fade-in pointer-events-none">
+          <Search className="w-3.5 h-3.5 text-muted" />
+          <span>Search activated (Triple Tap)</span>
+        </div>
+      )}
+
       {/* Responsive Header: Grid on desktop, Flex on Mobile */}
-      <div className="w-full px-4 sm:px-10 h-16 flex sm:grid sm:grid-cols-3 items-center justify-between font-sans">
+      <div className="w-full px-3 sm:px-10 h-16 flex sm:grid sm:grid-cols-3 items-center justify-between font-sans gap-2 sm:gap-0">
         {/* Left Column: Clean Brand */}
-        <div className="flex items-center justify-start shrink-0">
+        <div className="flex items-center justify-start shrink-0 pr-3 sm:pr-0">
           <Link
             to={isAdmin ? '/admin' : '/'}
-            className="flex items-center gap-2 group transition-opacity duration-150 hover:opacity-85"
+            onClick={handleLogoClick}
+            className="flex items-center gap-2 group transition-opacity duration-150 hover:opacity-85 select-none cursor-pointer"
+            title="Triple-tap to search articles"
           >
             <span className="font-serif text-xl sm:text-3xl font-normal tracking-tight text-ink">
               Veyra
@@ -99,7 +159,7 @@ export const Header: React.FC<HeaderProps> = ({
 
         {/* Center Column: Page Title / Author Name / Theme Toggle */}
         <div
-          className={`justify-center items-center shrink-0 transition-opacity duration-200 ${
+          className={`justify-center items-center shrink-0 transition-opacity duration-200 px-1 sm:px-0 ${
             isSearchOpen ? 'hidden sm:flex' : 'flex'
           }`}
         >
@@ -108,7 +168,7 @@ export const Header: React.FC<HeaderProps> = ({
               <span className="text-[10px] font-sans font-semibold tracking-widest text-muted uppercase">
                 Written by
               </span>
-              <span className="font-serif text-sm sm:text-base font-normal text-ink truncate max-w-[200px] sm:max-w-[280px]">
+              <span className="font-serif text-sm sm:text-base font-normal text-ink truncate max-w-[160px] sm:max-w-[280px]">
                 {authorName}
               </span>
             </div>
@@ -119,63 +179,61 @@ export const Header: React.FC<HeaderProps> = ({
               </span>
             </div>
           ) : !hideThemeToggle ? (
-            <ThemeToggle className="w-[210px] sm:w-56 md:w-60" />
+            <ThemeToggle className="w-[165px] sm:w-56 md:w-60" />
           ) : null}
         </div>
 
         {/* Right Column: Search & Profile */}
         <div className="flex items-center justify-end gap-2 sm:gap-4 shrink-0">
           {/* Smooth Expanding Search Bar */}
-          {onSearchChange && (
-            <div className="relative flex items-center">
-              <div
-                className={`flex items-center overflow-hidden transition-all duration-300 ease-in-out bg-surface/80 border shadow-xs rounded-xl ${
-                  isSearchOpen
-                    ? 'w-48 sm:w-72 px-3 py-1.5 border-border/80 focus-within:border-ink'
-                    : 'px-3 py-1.5 justify-center cursor-pointer border-border/70 hover:border-ink hover:bg-surface'
-                }`}
-                onClick={() => {
-                  if (!isSearchOpen) setIsSearchOpen(true);
-                }}
+          <div className="relative flex items-center">
+            <div
+              className={`flex items-center overflow-hidden transition-all duration-300 ease-in-out bg-surface/80 border shadow-xs rounded-xl ${
+                isSearchOpen
+                  ? 'w-48 sm:w-72 px-3 py-1.5 border-border/80 focus-within:border-ink'
+                  : 'px-3 py-1.5 justify-center cursor-pointer border-border/70 hover:border-ink hover:bg-surface'
+              }`}
+              onClick={() => {
+                if (!isSearchOpen) setIsSearchOpen(true);
+              }}
+            >
+              <button
+                type="button"
+                className="p-0.5 text-muted hover:text-ink transition-colors shrink-0"
+                title="Search articles"
               >
+                <Search className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-muted" />
+              </button>
+
+              <input
+                ref={searchInputRef}
+                type="text"
+                value={currentSearchValue}
+                onChange={(e) => handleQueryChange(e.target.value)}
+                placeholder="Search articles..."
+                className={`w-full bg-transparent text-xs sm:text-sm text-ink placeholder:text-muted/50 font-sans focus:outline-none transition-all duration-300 pl-2 ${
+                  isSearchOpen
+                    ? 'opacity-100 pointer-events-auto'
+                    : 'w-0 opacity-0 pointer-events-none hidden'
+                }`}
+              />
+
+              {isSearchOpen && (
                 <button
                   type="button"
-                  className="p-0.5 text-muted hover:text-ink transition-colors shrink-0"
-                  title="Search articles"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleQueryChange('');
+                    setIsSearchOpen(false);
+                  }}
+                  className="p-1 text-muted hover:text-ink transition-colors shrink-0 ml-1 rounded-md hover:bg-black/[0.04] dark:hover:bg-white/[0.05]"
+                  title="Close search"
                 >
-                  <Search className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-muted" />
+                  <X className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 </button>
-
-                <input
-                  ref={searchInputRef}
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => onSearchChange(e.target.value)}
-                  placeholder="Search articles..."
-                  className={`w-full bg-transparent text-xs sm:text-sm text-ink placeholder:text-muted/50 font-sans focus:outline-none transition-all duration-300 pl-2 ${
-                    isSearchOpen
-                      ? 'opacity-100 pointer-events-auto'
-                      : 'w-0 opacity-0 pointer-events-none hidden'
-                  }`}
-                />
-
-                {isSearchOpen && (
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onSearchChange('');
-                      setIsSearchOpen(false);
-                    }}
-                    className="p-1 text-muted hover:text-ink transition-colors shrink-0 ml-1 rounded-md hover:bg-black/[0.04] dark:hover:bg-white/[0.05]"
-                    title="Close search"
-                  >
-                    <X className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                  </button>
-                )}
-              </div>
+              )}
             </div>
-          )}
+          </div>
 
           {user ? (
             <div className="relative shrink-0" ref={profileRef}>

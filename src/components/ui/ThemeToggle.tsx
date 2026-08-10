@@ -23,11 +23,11 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({ className = '' }) => {
     <div
       aria-label="Theme mode switcher"
       role="radiogroup"
-      className={`relative grid grid-cols-3 p-1 h-9 sm:h-[38px] rounded-[12px] border border-border/70 bg-black/[0.03] dark:bg-white/[0.03] text-xs font-sans font-medium select-none items-center ${className}`}
+      className={`relative grid grid-cols-3 p-0.5 sm:p-1 h-8 sm:h-[38px] rounded-[12px] border border-border/70 bg-black/[0.03] dark:bg-white/[0.03] text-xs font-sans font-medium select-none items-center ${className}`}
     >
       {/* Elevated active indicator pill */}
       <div
-        className="absolute top-1 bottom-1 left-1 w-[calc((100%-8px)/3)] bg-surface rounded-[8px] border border-border/70 shadow-xs transition-transform duration-200 ease-out pointer-events-none"
+        className="absolute top-0.5 bottom-0.5 sm:top-1 sm:bottom-1 left-0.5 sm:left-1 w-[calc((100%-4px)/3)] sm:w-[calc((100%-8px)/3)] bg-surface rounded-[8px] border border-border/70 shadow-xs transition-transform duration-200 ease-out pointer-events-none"
         style={{
           transform: `translateX(${activeIndex * 100}%)`,
         }}
@@ -42,7 +42,7 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({ className = '' }) => {
             role="radio"
             aria-checked={isActive}
             onClick={() => setTheme(t.id)}
-            className={`relative h-full px-2 sm:px-3 flex items-center justify-center text-center rounded-[8px] text-[11px] sm:text-xs font-medium transition-colors duration-150 z-10 focus:outline-none whitespace-nowrap ${
+            className={`relative h-full px-1 sm:px-3 flex items-center justify-center text-center rounded-[8px] text-[10px] sm:text-xs font-medium transition-colors duration-150 z-10 focus:outline-none whitespace-nowrap ${
               isActive ? 'text-ink font-semibold' : 'text-muted hover:text-ink'
             }`}
           >
