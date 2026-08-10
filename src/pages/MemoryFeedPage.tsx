@@ -113,9 +113,6 @@ export const MemoryFeedPage: React.FC = () => {
           </div>
         ) : filteredItems.length === 0 ? (
           <div className="flex-1 flex flex-col items-center justify-center my-auto py-16 text-center max-w-lg mx-auto space-y-3">
-            <div className="w-12 h-12 rounded-full bg-surface border border-border/70 flex items-center justify-center text-ink mb-2">
-              <Brain className="w-6 h-6" />
-            </div>
             <p className="font-serif text-xl sm:text-2xl text-ink">No saved memories yet</p>
             <p className="text-muted text-sm font-light leading-relaxed">
               Select text inside any article and click the brain icon to save quotes to your personal Memory.
