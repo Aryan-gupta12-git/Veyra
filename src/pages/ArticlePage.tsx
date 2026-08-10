@@ -281,6 +281,16 @@ export const ArticlePage: React.FC = () => {
                   )}
                 </div>
               </div>
+
+              {/* Hero Cover Image with Codrops Parallax Scale Animation */}
+              {article.coverImage && (
+                <div className="inner-image-wrap group mt-6 mb-2 w-full h-[260px] sm:h-[360px] rounded-xl overflow-hidden bg-black/5 dark:bg-white/5 border border-border/50">
+                  <img
+                    src={article.coverImage}
+                    alt={article.title}
+                  />
+                </div>
+              )}
             </header>
 
             {/* Article Content */}

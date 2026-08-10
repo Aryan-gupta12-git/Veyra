@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { Routes, Route, Navigate, useLocation, useNavigationType } from 'react-router-dom';
 import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import SmoothScrollProvider from './components/layout/SmoothScrollProvider';
 import HomePage from './pages/HomePage';
 import ArticlePage from './pages/ArticlePage';
 import AuthorPage from './pages/AuthorPage';
@@ -36,15 +37,23 @@ function ScrollToTop() {
   }, [location.pathname, location.key]);
 
   useEffect(() => {
+    const lenis = (window as any).lenisInstance;
     if (navigationType === 'POP') {
       isPopRef.current = true;
       const savedY = scrollPositionsMap.get(location.key) ?? scrollPositionsMap.get(location.pathname) ?? 0;
 
-      window.scrollTo(0, savedY);
-      const t1 = setTimeout(() => window.scrollTo(0, savedY), 30);
-      const t2 = setTimeout(() => window.scrollTo(0, savedY), 100);
-      const t3 = setTimeout(() => {
+      const performScroll = () => {
+        if (lenis) {
+          lenis.scrollTo(savedY, { immediate: true });
+        }
         window.scrollTo(0, savedY);
+      };
+
+      performScroll();
+      const t1 = setTimeout(performScroll, 30);
+      const t2 = setTimeout(performScroll, 100);
+      const t3 = setTimeout(() => {
+        performScroll();
         isPopRef.current = false;
       }, 250);
 
@@ -55,6 +64,9 @@ function ScrollToTop() {
       };
     } else {
       isPopRef.current = false;
+      if (lenis) {
+        lenis.scrollTo(0, { immediate: true });
+      }
       window.scrollTo(0, 0);
     }
   }, [location.pathname, location.key, navigationType]);
@@ -202,7 +214,9 @@ export function App() {
   return (
     <ThemeProvider>
       <AuthProvider>
-        <AppContent />
+        <SmoothScrollProvider>
+          <AppContent />
+        </SmoothScrollProvider>
       </AuthProvider>
     </ThemeProvider>
   );

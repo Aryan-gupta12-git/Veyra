@@ -18,6 +18,17 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({ article }) => {
         className="flex-1 flex flex-col justify-between focus:outline-none"
       >
         <div className="flex-1 flex flex-col">
+          {/* Article Cover Image with Codrops Inner Parallax Scale Animation */}
+          {article.coverImage && (
+            <div className="inner-image-wrap w-full h-44 sm:h-48 mb-4 rounded-lg bg-black/5 dark:bg-white/5 border border-border/40 overflow-hidden">
+              <img
+                src={article.coverImage}
+                alt={article.title}
+                loading="lazy"
+              />
+            </div>
+          )}
+
           {/* Article Title */}
           <h2 className="font-serif text-lg sm:text-xl font-normal leading-snug text-ink mb-3 group-hover:text-ink/85 transition-colors line-clamp-2">
             {article.title}
