@@ -8,7 +8,8 @@ import Header from '../components/layout/Header';
 import Footer from '../components/layout/Footer';
 import ArticleCard from '../components/article/ArticleCard';
 import ArticleSkeleton from '../components/skeleton/ArticleSkeleton';
-import { ArrowLeft, Share2, Check, Heart, Edit3 } from 'lucide-react';
+import HeartLikeButton from '../components/ui/HeartLikeButton';
+import { ArrowLeft, Share2, Check, Edit3 } from 'lucide-react';
 
 export const ArticlePage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -197,57 +198,14 @@ export const ArticlePage: React.FC = () => {
                 </div>
 
                 <div className="flex items-center gap-4">
-                  {/* Like Count / Button with Floating Heart Burst */}
-                  {isAdmin ? (
-                    <div
-                      className="flex items-center gap-1.5 text-muted cursor-default"
-                      title="Article like count"
-                    >
-                      <Heart className="w-4 h-4 text-muted" />
-                      <span className="text-[11px]">{likeCount}</span>
-                    </div>
-                  ) : (
-                    <div className="relative inline-flex items-center">
-                      <button
-                        onClick={handleToggleLike}
-                        disabled={liking}
-                        className={`flex items-center gap-1.5 transition-colors cursor-pointer disabled:opacity-50 relative ${
-                          hasLiked ? 'text-red-600 dark:text-red-500 font-semibold' : 'text-muted hover:text-ink'
-                        }`}
-                        title={hasLiked ? 'Unlike article' : 'Like article'}
-                      >
-                        <Heart
-                          className={`w-4 h-4 transition-colors ${
-                            hasLiked
-                              ? 'fill-red-600 text-red-600 dark:fill-red-500 dark:text-red-500 scale-110 animate-heart-pulse drop-shadow-xs'
-                              : 'scale-100'
-                          }`}
-                        />
-                        <span className="text-[11px]">{likeCount}</span>
-                      </button>
-
-                      {/* Floating Pop-out Heart Particles (GPU Hardware-Accelerated) */}
-                      {heartParticles.map((p) => (
-                        <span
-                          key={p.id}
-                          className="absolute top-0 left-1 pointer-events-none z-50 animate-heart-pop"
-                          style={
-                            {
-                              '--pop-x': `${p.x}px`,
-                              '--pop-y': `${p.y}px`,
-                              '--pop-r': `${p.rot}deg`,
-                              animationDelay: `${p.delay}ms`,
-                            } as React.CSSProperties
-                          }
-                        >
-                          <Heart
-                            className="fill-red-500 text-red-500 dark:fill-red-500 dark:text-red-500 filter drop-shadow-xs"
-                            style={{ width: `${p.size}px`, height: `${p.size}px` }}
-                          />
-                        </span>
-                      ))}
-                    </div>
-                  )}
+                  {/* Smooth Lottie Heart Like Button */}
+                  <HeartLikeButton
+                    hasLiked={hasLiked}
+                    likeCount={likeCount}
+                    onToggleLike={handleToggleLike}
+                    disabled={liking}
+                    isAdmin={isAdmin}
+                  />
 
                   <button
                     onClick={handleCopyLink}
