@@ -181,10 +181,10 @@ export const Header: React.FC<HeaderProps> = ({
           {user && isAdmin && (
             <Link
               to="/admin"
-              className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-border/70 bg-surface/80 text-ink text-xs font-semibold hover:border-ink transition-all shadow-xs"
-              title="Workspace"
+              className="hidden sm:inline-flex items-center gap-1.5 sm:gap-2 px-3 py-1.5 rounded-xl border border-border/70 bg-surface/80 text-ink text-xs sm:text-sm font-semibold hover:border-ink transition-all shadow-xs shrink-0"
+              title="Admin Panel"
             >
-              <ShieldCheck className="w-3.5 h-3.5" />
+              <ShieldCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-ink shrink-0" />
               <span>Admin Panel</span>
             </Link>
           )}
