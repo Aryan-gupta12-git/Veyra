@@ -296,8 +296,6 @@ export const ArticlePage: React.FC = () => {
           </div>
         ) : (
           <article
-            onClick={handleArticleTapOrClick}
-            onTouchEnd={handleArticleTapOrClick}
             className="max-w-[700px] mx-auto px-6 sm:px-8 pt-10 sm:pt-14 pb-16 animate-fade-in"
           >
             {/* Back Button */}
@@ -322,6 +320,8 @@ export const ArticlePage: React.FC = () => {
 
               {/* Expressive Title */}
               <h1
+                onClick={handleArticleTapOrClick}
+                onTouchEnd={handleArticleTapOrClick}
                 onDoubleClick={handleDoubleTapToLike}
                 className="font-serif text-3xl sm:text-4xl md:text-[44px] font-normal leading-[1.35] sm:leading-[1.35] tracking-tight text-ink mb-8 select-none cursor-pointer transition-transform active:scale-[0.99]"
                 title="Double-tap or double-click to like this article"
