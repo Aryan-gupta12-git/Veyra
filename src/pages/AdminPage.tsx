@@ -125,12 +125,9 @@ export const AdminPage: React.FC = () => {
                     className="space-y-1.5 flex-1 min-w-0 pr-4 group cursor-pointer"
                   >
                     <div className="flex items-center gap-2">
-                      <span className="text-[10px] font-sans font-semibold tracking-wider uppercase px-2 py-0.5 rounded-md border border-border/70 bg-surface/80 text-ink">
-                        {article.published ? 'Published' : 'Draft'}
-                      </span>
                       {article.category && (
-                        <span className="text-[10px] text-muted uppercase tracking-wider font-semibold">
-                          · {article.category}
+                        <span className="text-[10px] font-sans font-semibold tracking-wider uppercase px-2 py-0.5 rounded-md border border-border/70 bg-surface/80 text-ink">
+                          {article.category}
                         </span>
                       )}
                     </div>

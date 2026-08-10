@@ -8,7 +8,6 @@ import Footer from '../components/layout/Footer';
 import {
   ArrowLeft,
   Globe,
-  Save,
   Loader2,
   Eye,
   ChevronDown,
@@ -101,7 +100,7 @@ export const EditorPage: React.FC = () => {
     }
   };
 
-  const handleSave = async (isPublishing: boolean) => {
+  const handleSave = async () => {
     if (!title.trim() || !content.trim()) {
       alert('Please enter an article title and content.');
       return;
@@ -128,7 +127,7 @@ export const EditorPage: React.FC = () => {
         category: selectedTopic ? selectedTopic.name : category,
         topicId: topicId || undefined,
         content,
-        published: isPublishing,
+        published: true,
       };
 
       if (isEditing && id) {
@@ -159,7 +158,7 @@ export const EditorPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-paper text-ink font-sans flex flex-col transition-colors duration-200">
       {/* Editor Fixed Full Width Header */}
-      <header className="navbar-surface sticky top-0 z-50 border-b border-border/50 px-6 sm:px-10 py-3">
+      <header className="navbar-surface sticky top-0 z-50 border-b border-border/50 px-4 sm:px-10 py-3">
         <div className="w-full flex items-center justify-between">
           <Link
             to="/admin"
@@ -173,31 +172,22 @@ export const EditorPage: React.FC = () => {
           </Link>
 
           {/* Action Buttons */}
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2 sm:gap-2.5">
             <button
               type="button"
               onClick={() => setShowPreview(!showPreview)}
-              className="w-32 sm:w-36 h-9 box-border border border-border/70 text-xs font-semibold text-ink bg-surface/80 hover:border-ink hover:bg-surface rounded-xl transition-all shadow-xs flex items-center justify-center gap-1.5 shrink-0"
+              className="w-9 sm:w-36 h-9 box-border border border-border/70 text-xs font-semibold text-ink bg-surface/80 hover:border-ink hover:bg-surface rounded-xl transition-all shadow-xs flex items-center justify-center gap-1.5 shrink-0"
+              title={showPreview ? 'Edit Mode' : 'Preview Article'}
             >
-              <Eye className="w-3.5 h-3.5 text-muted shrink-0" />
-              <span className="leading-none">{showPreview ? 'Edit Mode' : 'Preview'}</span>
+              <Eye className="w-4 h-4 sm:w-3.5 sm:h-3.5 text-muted shrink-0" />
+              <span className="hidden sm:inline leading-none">{showPreview ? 'Edit Mode' : 'Preview'}</span>
             </button>
 
             <button
               type="button"
-              onClick={() => handleSave(false)}
+              onClick={handleSave}
               disabled={saving}
-              className="w-32 sm:w-36 h-9 box-border border border-border/70 text-xs font-semibold text-ink bg-surface/80 hover:border-ink hover:bg-surface rounded-xl transition-all shadow-xs flex items-center justify-center gap-1.5 disabled:opacity-50 shrink-0"
-            >
-              <Save className="w-3.5 h-3.5 text-muted shrink-0" />
-              <span className="leading-none">Save Draft</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => handleSave(true)}
-              disabled={saving}
-              className="w-32 sm:w-36 h-9 box-border border border-ink text-xs font-semibold bg-ink text-paper rounded-xl hover:opacity-90 transition-all flex items-center justify-center gap-1.5 shadow-xs disabled:opacity-50 shrink-0"
+              className="px-4 sm:w-36 h-9 box-border border border-ink text-xs font-semibold bg-ink text-paper rounded-xl hover:opacity-90 transition-all flex items-center justify-center gap-1.5 shadow-xs disabled:opacity-50 shrink-0"
             >
               {saving ? (
                 <Loader2 className="w-3.5 h-3.5 animate-spin shrink-0" />

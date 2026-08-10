@@ -310,7 +310,7 @@ export const createArticle = async (req: AuthRequest, res: Response): Promise<vo
         tags: Array.isArray(tags) ? tags : [],
         readingTime,
         authorName: authorName && String(authorName).trim() ? String(authorName).trim() : dbAuthor.name,
-        published: Boolean(published),
+        published: published !== undefined ? Boolean(published) : true,
         authorId: req.user.id,
       },
       include: {
