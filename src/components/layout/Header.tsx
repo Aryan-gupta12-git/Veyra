@@ -167,8 +167,8 @@ export const Header: React.FC<HeaderProps> = ({
               </span>
             </div>
           ) : pageTitle ? (
-            <div className="flex flex-col items-center justify-center text-center">
-              <span className="text-xs sm:text-sm font-sans font-semibold tracking-widest text-ink uppercase">
+            <div className="flex items-center justify-center text-center">
+              <span className="font-serif text-sm sm:text-base font-normal text-ink truncate max-w-[220px] sm:max-w-[360px]">
                 {pageTitle}
               </span>
             </div>
@@ -293,7 +293,7 @@ export const Header: React.FC<HeaderProps> = ({
                       className="group flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium text-muted hover:text-ink hover:bg-black/[0.03] dark:hover:bg-white/[0.04] transition-colors"
                     >
                       <Brain className="w-4 h-4 text-ink/80 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors shrink-0" />
-                      <span>Memory Feed</span>
+                      <span>Memory</span>
                     </Link>
 
                     <Link

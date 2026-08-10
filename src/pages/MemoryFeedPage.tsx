@@ -37,7 +37,7 @@ export const MemoryFeedPage: React.FC = () => {
       setKnowledgeItems(data);
     } catch (err: any) {
       console.error('Error fetching knowledge items:', err);
-      setError(err.message || 'Failed to load Memory Feed');
+      setError(err.message || 'Failed to load Memory');
     } finally {
       setLoading(false);
     }
@@ -67,7 +67,7 @@ export const MemoryFeedPage: React.FC = () => {
       <Header
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
-        pageTitle="Memory Feed"
+        pageTitle="Memory"
         hideThemeToggle={true}
       />
 
@@ -82,11 +82,6 @@ export const MemoryFeedPage: React.FC = () => {
             <ArrowLeft className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-1" />
             <span>Back to Articles</span>
           </button>
-
-          <div className="flex items-center gap-2 text-xs font-semibold text-purple-700 dark:text-purple-400 bg-purple-500/10 px-3 py-1 rounded-full border border-purple-500/20">
-            <Brain className="w-3.5 h-3.5" />
-            <span>{knowledgeItems.length} Saved {knowledgeItems.length === 1 ? 'Memory' : 'Memories'}</span>
-          </div>
         </div>
 
         {/* Knowledge Grid */}
@@ -106,12 +101,12 @@ export const MemoryFeedPage: React.FC = () => {
           </div>
         ) : filteredItems.length === 0 ? (
           <div className="flex-1 flex flex-col items-center justify-center my-auto py-16 text-center max-w-lg mx-auto space-y-3">
-            <div className="w-12 h-12 rounded-full bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-600 dark:text-purple-400 mb-2">
+            <div className="w-12 h-12 rounded-full bg-surface border border-border/70 flex items-center justify-center text-ink mb-2">
               <Brain className="w-6 h-6" />
             </div>
             <p className="font-serif text-xl sm:text-2xl text-ink">No saved memories yet</p>
             <p className="text-muted text-sm font-light leading-relaxed">
-              Select text inside any article and click the brain icon to save quotes to your personal Memory Feed.
+              Select text inside any article and click the brain icon to save quotes to your personal Memory.
             </p>
           </div>
         ) : (
