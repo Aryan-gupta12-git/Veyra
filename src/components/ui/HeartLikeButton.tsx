@@ -76,7 +76,9 @@ export const HeartLikeButton: React.FC<HeartLikeButtonProps> = ({
             autoplay={hasLiked}
             loop={false}
             speed={1.8}
-            className="w-7 h-7 absolute -top-1 -left-1 pointer-events-none"
+            className={`w-7 h-7 absolute -top-1 -left-1 pointer-events-none transition-all ${
+              hasLiked ? '' : 'contrast-[1.4] brightness-[0.65] dark:brightness-[1.8] dark:contrast-[1.2]'
+            }`}
           />
         </div>
         <span className="text-[11px] tabular-nums select-none">{likeCount}</span>
