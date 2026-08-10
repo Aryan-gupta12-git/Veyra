@@ -407,3 +407,36 @@ blockquote,
   will-change: transform, opacity;
   animation: instaHeartPop 850ms cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
 }
+
+/* Kindle-Style Personal Highlight Styling */
+.veyra-highlight {
+  background-color: #F5E6AD;
+  color: #25221F;
+  border-radius: 2px;
+  padding: 1px 0;
+  box-shadow: 0 0 0 1px rgba(220, 195, 125, 0.4);
+  transition: background-color 150ms ease, box-shadow 150ms ease;
+  text-decoration: none;
+}
+
+.veyra-highlight:hover {
+  background-color: #EBD691;
+  box-shadow: 0 0 0 1px rgba(200, 175, 105, 0.6);
+}
+
+.dark .veyra-highlight {
+  background-color: #4A4025;
+  color: #F3F3F3;
+  box-shadow: 0 0 0 1px rgba(140, 120, 60, 0.4);
+}
+
+.dark .veyra-highlight:hover {
+  background-color: #5C4F2E;
+  box-shadow: 0 0 0 1px rgba(160, 140, 70, 0.6);
+}
+
+.theme-studio .veyra-highlight {
+  background-color: #E6D8A6;
+  color: #141414;
+  box-shadow: 0 0 0 1px #141414;
+}

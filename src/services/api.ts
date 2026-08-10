@@ -360,3 +360,56 @@ export async function fetchUserLikedArticles(): Promise<Article[]> {
   }
   return [];
 }
+
+export async function fetchArticleHighlights(articleIdOrSlug: string): Promise<import('../types/highlight').Highlight[]> {
+  try {
+    const res = await fetch(`/api/articles/${articleIdOrSlug}/highlights`, {
+      credentials: 'include',
+    });
+    if (res.ok) {
+      const data = await res.json();
+      if (data.highlights) return data.highlights;
+    }
+  } catch (err) {
+    console.warn('Failed to fetch article highlights:', err);
+  }
+  return [];
+}
+
+export async function createArticleHighlight(
+  articleIdOrSlug: string,
+  input: import('../types/highlight').CreateHighlightInput
+): Promise<import('../types/highlight').Highlight> {
+  const res = await fetch(`/api/articles/${articleIdOrSlug}/highlights`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify(input),
+  });
+
+  if (!res.ok) {
+    const errText = await res.text();
+    let parsedErr: any = {};
+    try { parsedErr = JSON.parse(errText); } catch (e) {}
+    throw new Error(parsedErr.error || parsedErr.details || `Failed to save highlight (${res.status})`);
+  }
+
+  const data = await res.json();
+  return data.highlight;
+}
+
+export async function deleteHighlight(highlightId: string): Promise<boolean> {
+  const res = await fetch(`/api/highlights/${highlightId}`, {
+    method: 'DELETE',
+    credentials: 'include',
+  });
+
+  if (!res.ok) {
+    const errText = await res.text();
+    let parsedErr: any = {};
+    try { parsedErr = JSON.parse(errText); } catch (e) {}
+    throw new Error(parsedErr.error || parsedErr.details || `Failed to delete highlight (${res.status})`);
+  }
+
+  return true;
+}

@@ -9,6 +9,7 @@ import Footer from '../components/layout/Footer';
 import ArticleCard from '../components/article/ArticleCard';
 import ArticleSkeleton from '../components/skeleton/ArticleSkeleton';
 import HeartLikeButton from '../components/ui/HeartLikeButton';
+import ArticleHighlightManager from '../components/article/ArticleHighlightManager';
 import { ArrowLeft, Share2, Check, Edit3, Heart } from 'lucide-react';
 
 export const ArticlePage: React.FC = () => {
@@ -27,6 +28,8 @@ export const ArticlePage: React.FC = () => {
   const [liking, setLiking] = useState(false);
   const [showBigHeart, setShowBigHeart] = useState(false);
   const [heartParticles, setHeartParticles] = useState<{ id: number; x: number; y: number; rot: number; size: number; delay: number }[]>([]);
+
+  const contentRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     loadArticle();
@@ -354,6 +357,7 @@ export const ArticlePage: React.FC = () => {
               if (hasHtmlTags) {
                 return (
                   <div
+                    ref={contentRef}
                     className="veyra-reader-content prose dark:prose-invert max-w-none text-ink font-serif leading-relaxed"
                     dangerouslySetInnerHTML={{ __html: article.content }}
                   />
@@ -361,13 +365,19 @@ export const ArticlePage: React.FC = () => {
               }
               const paragraphs = article.content.split(/\n\s*\n/);
               return (
-                <div className="veyra-reader-content prose dark:prose-invert max-w-none text-ink font-serif leading-relaxed">
+                <div
+                  ref={contentRef}
+                  className="veyra-reader-content prose dark:prose-invert max-w-none text-ink font-serif leading-relaxed"
+                >
                   {paragraphs.map((pText, idx) => (
                     <p key={idx}>{pText.trim()}</p>
                   ))}
                 </div>
               );
             })()}
+
+            {/* Private Kindle-Style Personal Highlight Layer */}
+            <ArticleHighlightManager articleId={article.id} contentRef={contentRef} />
 
             {/* "More Articles by Author" Section */}
             {authorArticles.length > 0 && (

@@ -6,6 +6,7 @@ import authRoutes from './routes/authRoutes.js';
 import articleRoutes from './routes/articleRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
 import userRoutes from './routes/userRoutes.js';
+import highlightRoutes from './routes/highlightRoutes.js';
 
 dotenv.config();
 
@@ -29,6 +30,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/articles', articleRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/user', userRoutes);
+app.use('/api/highlights', highlightRoutes);
 
 // Health Check API
 app.get('/api/health', (req, res) => {
