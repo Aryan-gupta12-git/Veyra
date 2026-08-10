@@ -12,6 +12,7 @@ import EditorPage from './pages/EditorPage';
 import AuthPage from './pages/AuthPage';
 import ProfilePage from './pages/ProfilePage';
 import LikedArticlesPage from './pages/LikedArticlesPage';
+import MemoryFeedPage from './pages/MemoryFeedPage';
 import { Loader2 } from 'lucide-react';
 
 const scrollPositionsMap = new Map<string, number>();
@@ -166,6 +167,14 @@ export function AppContent() {
         element={
           <RequireAuth>
             <ProfilePage />
+          </RequireAuth>
+        }
+      />
+      <Route
+        path="/memory-feed"
+        element={
+          <RequireAuth>
+            <MemoryFeedPage />
           </RequireAuth>
         }
       />

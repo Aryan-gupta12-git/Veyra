@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { Highlighter, Copy, Trash2, LogIn } from 'lucide-react';
+import { Brain, Highlighter, Copy, Trash2, LogIn } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Highlight } from '../../types/highlight';
 
@@ -25,13 +25,14 @@ interface HighlightPopoverProps {
   saving: boolean;
   deleting: boolean;
   onSaveHighlight: () => void;
+  onSaveKnowledge: () => void;
   onRemoveHighlight: () => void;
   onDismiss: () => void;
 }
 
 function computePillPosition(
   rect: DOMRect,
-  approxWidth: number = 88
+  approxWidth: number = 112
 ): React.CSSProperties {
   const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1200;
   const buttonHeight = 32;
@@ -77,6 +78,7 @@ export const HighlightPopover: React.FC<HighlightPopoverProps> = ({
   saving,
   deleting,
   onSaveHighlight,
+  onSaveKnowledge,
   onRemoveHighlight,
   onDismiss,
 }) => {
@@ -86,8 +88,13 @@ export const HighlightPopover: React.FC<HighlightPopoverProps> = ({
     onDismiss();
   };
 
-  const handleSave = () => {
+  const handleSaveHighlight = () => {
     onSaveHighlight();
+    onDismiss();
+  };
+
+  const handleSaveKnowledge = () => {
+    onSaveKnowledge();
     onDismiss();
   };
 
@@ -98,22 +105,33 @@ export const HighlightPopover: React.FC<HighlightPopoverProps> = ({
 
   const content = (
     <>
-      {/* Floating action toolbar centered directly ABOVE newly selected text */}
+      {/* Floating action toolbar centered directly ABOVE newly selected text: [ Brain | Highlighter | Copy ] */}
       {pendingSelection && (
         <div
           className="z-50 veyra-highlight-popover pointer-events-auto"
-          style={computePillPosition(pendingSelection.rect, 88)}
+          style={computePillPosition(pendingSelection.rect, 112)}
         >
           <div className="flex items-center gap-1 p-1 rounded-xl border border-border/80 bg-surface shadow-xs text-ink animate-fade-in select-none">
-            {/* Copy Icon Button */}
-            <button
-              type="button"
-              onClick={() => handleCopyText(pendingSelection.selectedText)}
-              className="p-1.5 rounded-lg text-ink/80 hover:text-ink hover:bg-black/[0.05] dark:hover:bg-white/[0.08] active:scale-95 transition-all cursor-pointer"
-              title="Copy text"
-            >
-              <Copy className="w-3.5 h-3.5 shrink-0" />
-            </button>
+            {/* Add to Knowledge (Brain Icon) */}
+            {isAuthenticated ? (
+              <button
+                type="button"
+                onClick={handleSaveKnowledge}
+                disabled={saving}
+                className="p-1.5 rounded-lg text-purple-700 dark:text-purple-400 hover:bg-purple-500/10 active:scale-95 transition-all cursor-pointer disabled:opacity-50"
+                title="Add to Knowledge"
+              >
+                <Brain className="w-3.5 h-3.5 shrink-0" />
+              </button>
+            ) : (
+              <Link
+                to="/login"
+                className="p-1.5 rounded-lg text-purple-700 dark:text-purple-400 hover:bg-purple-500/10 active:scale-95 transition-all cursor-pointer"
+                title="Sign in to add to Knowledge"
+              >
+                <Brain className="w-3.5 h-3.5 shrink-0" />
+              </Link>
+            )}
 
             {/* Vertical Divider */}
             <div className="w-[1px] h-3.5 bg-border/60 my-auto" />
@@ -122,7 +140,7 @@ export const HighlightPopover: React.FC<HighlightPopoverProps> = ({
             {isAuthenticated ? (
               <button
                 type="button"
-                onClick={handleSave}
+                onClick={handleSaveHighlight}
                 disabled={saving}
                 className="p-1.5 rounded-lg text-amber-700 dark:text-amber-400 hover:bg-amber-500/10 active:scale-95 transition-all cursor-pointer disabled:opacity-50"
                 title="Highlight text"
@@ -138,6 +156,19 @@ export const HighlightPopover: React.FC<HighlightPopoverProps> = ({
                 <LogIn className="w-3.5 h-3.5 shrink-0" />
               </Link>
             )}
+
+            {/* Vertical Divider */}
+            <div className="w-[1px] h-3.5 bg-border/60 my-auto" />
+
+            {/* Copy Icon Button */}
+            <button
+              type="button"
+              onClick={() => handleCopyText(pendingSelection.selectedText)}
+              className="p-1.5 rounded-lg text-ink/80 hover:text-ink hover:bg-black/[0.05] dark:hover:bg-white/[0.08] active:scale-95 transition-all cursor-pointer"
+              title="Copy text"
+            >
+              <Copy className="w-3.5 h-3.5 shrink-0" />
+            </button>
           </div>
         </div>
       )}

@@ -25,6 +25,7 @@ model User {
   interests           UserInterest[]
   likes               ArticleLike[]
   highlights          Highlight[]
+  knowledgeItems      KnowledgeItem[]
 
   @@map("users")
 }
@@ -71,6 +72,7 @@ model Article {
   updatedAt   DateTime      @updatedAt
   likedBy     ArticleLike[]
   highlights  Highlight[]
+  knowledgeItems KnowledgeItem[]
 
   @@index([published, createdAt])
   @@map("articles")
@@ -106,4 +108,24 @@ model Highlight {
   @@index([articleId])
   @@index([userId, articleId])
   @@map("highlights")
+}
+
+model KnowledgeItem {
+  id            String   @id @default(cuid())
+  userId        String
+  articleId     String
+  selectedText  String   @db.Text
+  startOffset   Int
+  endOffset     Int
+  contextBefore String?  @db.Text
+  contextAfter  String?  @db.Text
+  createdAt     DateTime @default(now())
+
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  article       Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([articleId])
+  @@index([userId, articleId])
+  @@map("knowledge_items")
 }

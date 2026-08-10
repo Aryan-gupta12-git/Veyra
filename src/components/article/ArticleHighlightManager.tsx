@@ -16,7 +16,7 @@ interface ArticleHighlightManagerProps {
 
 export const ArticleHighlightManager: React.FC<ArticleHighlightManagerProps> = ({ articleId, contentRef }) => {
   const { user } = useAuth();
-  const { highlights, saving, deleting, addHighlight, removeHighlight } = useArticleHighlights(articleId);
+  const { highlights, saving, deleting, addHighlight, addKnowledge, removeHighlight } = useArticleHighlights(articleId);
 
   const [pendingSelection, setPendingSelection] = useState<PendingSelection | null>(null);
   const [activeHighlightPopover, setActiveHighlightPopover] = useState<ActiveHighlightPopover | null>(null);
@@ -171,6 +171,22 @@ export const ArticleHighlightManager: React.FC<ArticleHighlightManagerProps> = (
     }
   };
 
+  const handleSaveKnowledge = async () => {
+    if (!pendingSelection) return;
+    const ok = await addKnowledge({
+      selectedText: pendingSelection.selectedText,
+      startOffset: pendingSelection.startOffset,
+      endOffset: pendingSelection.endOffset,
+      contextBefore: pendingSelection.contextBefore,
+      contextAfter: pendingSelection.contextAfter,
+    });
+
+    if (ok) {
+      window.getSelection()?.removeAllRanges();
+      setPendingSelection(null);
+    }
+  };
+
   const handleRemoveHighlight = async () => {
     if (!activeHighlightPopover) return;
     const ok = await removeHighlight(activeHighlightPopover.highlight.id);
@@ -193,6 +209,7 @@ export const ArticleHighlightManager: React.FC<ArticleHighlightManagerProps> = (
       saving={saving}
       deleting={deleting}
       onSaveHighlight={handleSaveHighlight}
+      onSaveKnowledge={handleSaveKnowledge}
       onRemoveHighlight={handleRemoveHighlight}
       onDismiss={handleDismiss}
     />

@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Highlight, CreateHighlightInput } from '../types/highlight';
-import { fetchArticleHighlights, createArticleHighlight, deleteHighlight } from '../services/api';
+import { fetchArticleHighlights, createArticleHighlight, deleteHighlight, createKnowledgeItem } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 
 export function useArticleHighlights(articleId: string) {
@@ -56,6 +56,26 @@ export function useArticleHighlights(articleId: string) {
     }
   };
 
+  const addKnowledge = async (input: CreateHighlightInput): Promise<boolean> => {
+    if (!user || !articleId || saving) return false;
+    try {
+      setSaving(true);
+      console.log('[KNOWLEDGE CREATE]', { articleId, selectedText: input.selectedText });
+      const res = await createKnowledgeItem(articleId, input);
+      if (res.highlight) {
+        const createdH = res.highlight;
+        setHighlights((prev) => [...prev.filter((h) => h.id !== createdH.id), createdH]);
+      }
+      return true;
+    } catch (err: any) {
+      console.error('KNOWLEDGE CREATE FAILED', err);
+      alert(err.message || 'Failed to save to Knowledge');
+      return false;
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const removeHighlight = async (highlightId: string): Promise<boolean> => {
     if (!user || deleting) return false;
     try {
@@ -79,6 +99,7 @@ export function useArticleHighlights(articleId: string) {
     saving,
     deleting,
     addHighlight,
+    addKnowledge,
     removeHighlight,
     reloadHighlights: loadHighlights,
   };

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import ThemeToggle from '../ui/ThemeToggle';
 import { useAuth } from '../../context/AuthContext';
-import { LogOut, Search, X, ShieldCheck, User as UserIcon, Heart, ChevronDown } from 'lucide-react';
+import { LogOut, Search, X, ShieldCheck, User as UserIcon, Heart, Brain, ChevronDown } from 'lucide-react';
 
 interface HeaderProps {
   progress?: number;
@@ -288,6 +288,15 @@ export const Header: React.FC<HeaderProps> = ({
                     >
                       <UserIcon className="w-4 h-4 text-muted shrink-0" />
                       <span>Profile</span>
+                    </Link>
+
+                    <Link
+                      to="/memory-feed"
+                      onClick={() => setProfileMenuOpen(false)}
+                      className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium text-muted hover:text-ink hover:bg-black/[0.03] dark:hover:bg-white/[0.04] transition-colors"
+                    >
+                      <Brain className="w-4 h-4 text-purple-600 dark:text-purple-400 shrink-0" />
+                      <span>Memory Feed</span>
                     </Link>
 
                     <Link

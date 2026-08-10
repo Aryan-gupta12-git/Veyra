@@ -416,8 +416,44 @@ export async function deleteHighlight(highlightId: string): Promise<boolean> {
     const errText = await res.text();
     let parsedErr: any = {};
     try { parsedErr = JSON.parse(errText); } catch (e) {}
-    throw new Error(parsedErr.error || parsedErr.details || `Failed to delete highlight (${res.status})`);
+    throw new Error(parsedErr.error || `Failed to delete highlight (${res.status})`);
   }
 
   return true;
+}
+
+export async function createKnowledgeItem(
+  articleIdOrSlug: string,
+  input: import('../types/highlight').CreateHighlightInput
+): Promise<{ knowledgeItem: import('../types/knowledge').KnowledgeItem; highlight?: import('../types/highlight').Highlight }> {
+  const res = await fetch(`/api/articles/${articleIdOrSlug}/knowledge`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify(input),
+  });
+
+  if (!res.ok) {
+    const errText = await res.text();
+    let parsedErr: any = {};
+    try { parsedErr = JSON.parse(errText); } catch (e) {}
+    throw new Error(parsedErr.error || `Failed to save to Knowledge (${res.status})`);
+  }
+
+  return await res.json();
+}
+
+export async function fetchUserKnowledgeItems(): Promise<import('../types/knowledge').KnowledgeItem[]> {
+  try {
+    const res = await fetch('/api/knowledge', {
+      credentials: 'include',
+    });
+    if (res.ok) {
+      const data = await res.json();
+      if (data.knowledgeItems) return data.knowledgeItems;
+    }
+  } catch (err) {
+    console.warn('Failed to fetch user knowledge items:', err);
+  }
+  return [];
 }

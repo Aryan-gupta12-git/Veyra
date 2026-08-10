@@ -1,0 +1,156 @@
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { KnowledgeItem } from '../types/knowledge';
+import { fetchUserKnowledgeItems } from '../services/api';
+import { useAuth } from '../context/AuthContext';
+import Header from '../components/layout/Header';
+import Footer from '../components/layout/Footer';
+import ArticleCardSkeleton from '../components/skeleton/ArticleCardSkeleton';
+import { ArrowLeft, Brain, BookOpen } from 'lucide-react';
+
+export const MemoryFeedPage: React.FC = () => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [knowledgeItems, setKnowledgeItems] = useState<KnowledgeItem[]>([]);
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleBack = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (window.history.length > 1) {
+      navigate(-1);
+    } else {
+      navigate('/');
+    }
+  };
+
+  useEffect(() => {
+    loadKnowledge();
+  }, [user]);
+
+  const loadKnowledge = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const data = await fetchUserKnowledgeItems();
+      setKnowledgeItems(data);
+    } catch (err: any) {
+      console.error('Error fetching knowledge items:', err);
+      setError(err.message || 'Failed to load Memory Feed');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const filteredItems = knowledgeItems.filter((item) => {
+    if (!searchQuery.trim()) return true;
+    const q = searchQuery.toLowerCase();
+    const title = item.article?.title || '';
+    const category = item.article?.category || '';
+    return (
+      item.selectedText.toLowerCase().includes(q) ||
+      title.toLowerCase().includes(q) ||
+      category.toLowerCase().includes(q)
+    );
+  });
+
+  const handleCardClick = (item: KnowledgeItem) => {
+    if (!item.article) return;
+    const targetSlug = item.article.slug || item.article.id;
+    // Pass startOffset and text to locate exact highlight Range in ArticlePage
+    navigate(`/article/${encodeURIComponent(targetSlug)}?highlightId=${encodeURIComponent(item.id)}&startOffset=${item.startOffset}`);
+  };
+
+  return (
+    <div className="min-h-screen bg-paper text-ink font-sans flex flex-col transition-colors duration-200">
+      <Header
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        pageTitle="Memory Feed"
+        hideThemeToggle={true}
+      />
+
+      <main className="flex-1 min-h-[calc(100vh-4rem)] max-w-[1440px] mx-auto px-6 sm:px-8 pt-6 sm:pt-8 pb-16 w-full flex flex-col">
+        {/* Back Link */}
+        <div className="mb-6 flex items-center justify-between">
+          <button
+            type="button"
+            onClick={handleBack}
+            className="inline-flex items-center gap-1.5 text-xs font-medium text-muted hover:text-ink transition-colors group cursor-pointer"
+          >
+            <ArrowLeft className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-1" />
+            <span>Back to Articles</span>
+          </button>
+
+          <div className="flex items-center gap-2 text-xs font-semibold text-purple-700 dark:text-purple-400 bg-purple-500/10 px-3 py-1 rounded-full border border-purple-500/20">
+            <Brain className="w-3.5 h-3.5" />
+            <span>{knowledgeItems.length} Saved {knowledgeItems.length === 1 ? 'Memory' : 'Memories'}</span>
+          </div>
+        </div>
+
+        {/* Knowledge Grid */}
+        {loading ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 py-6 items-stretch">
+            <ArticleCardSkeleton count={8} />
+          </div>
+        ) : error ? (
+          <div className="py-12 text-center border border-border/50 rounded-xl p-8 bg-surface/50 max-w-lg mx-auto">
+            <p className="text-muted text-sm mb-4">{error}</p>
+            <button
+              onClick={loadKnowledge}
+              className="px-4 py-2 text-xs font-medium bg-ink text-paper rounded-lg hover:opacity-90 transition-opacity cursor-pointer"
+            >
+              Try Again
+            </button>
+          </div>
+        ) : filteredItems.length === 0 ? (
+          <div className="flex-1 flex flex-col items-center justify-center my-auto py-16 text-center max-w-lg mx-auto space-y-3">
+            <div className="w-12 h-12 rounded-full bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-600 dark:text-purple-400 mb-2">
+              <Brain className="w-6 h-6" />
+            </div>
+            <p className="font-serif text-xl sm:text-2xl text-ink">No saved memories yet</p>
+            <p className="text-muted text-sm font-light leading-relaxed">
+              Select text inside any article and click the brain icon to save quotes to your personal Memory Feed.
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 items-stretch animate-fade-in">
+            {filteredItems.map((item) => (
+              <div
+                key={item.id}
+                onClick={() => handleCardClick(item)}
+                className="flex flex-col justify-between p-6 rounded-xl border border-border/70 bg-surface/80 hover:border-ink transition-all shadow-xs cursor-pointer group hover:shadow-md"
+              >
+                {/* Highlighted Quote Text */}
+                <div className="mb-6">
+                  <p className="font-serif text-base sm:text-lg font-normal text-ink leading-snug tracking-tight mb-2 italic">
+                    “{item.selectedText}”
+                  </p>
+                </div>
+
+                {/* Article Info */}
+                <div className="pt-4 border-t border-border/40 space-y-1">
+                  <div className="flex items-center gap-1.5 text-xs font-medium text-ink group-hover:underline truncate">
+                    <BookOpen className="w-3.5 h-3.5 text-muted shrink-0" />
+                    <span className="truncate">{item.article?.title || 'Original Article'}</span>
+                  </div>
+
+                  {item.article?.category && (
+                    <span className="inline-block text-[10px] font-sans font-semibold tracking-wider text-muted uppercase">
+                      {item.article.category}
+                    </span>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </main>
+
+      <Footer />
+    </div>
+  );
+};
+
+export default MemoryFeedPage;
