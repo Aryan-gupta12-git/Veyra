@@ -9,7 +9,7 @@ import Footer from '../components/layout/Footer';
 import ArticleCard from '../components/article/ArticleCard';
 import ArticleSkeleton from '../components/skeleton/ArticleSkeleton';
 import HeartLikeButton from '../components/ui/HeartLikeButton';
-import { ArrowLeft, Share2, Check, Edit3 } from 'lucide-react';
+import { ArrowLeft, Share2, Check, Edit3, Heart } from 'lucide-react';
 
 export const ArticlePage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -25,55 +25,48 @@ export const ArticlePage: React.FC = () => {
   const [hasLiked, setHasLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(0);
   const [liking, setLiking] = useState(false);
+  const [showBigHeart, setShowBigHeart] = useState(false);
   const [heartParticles, setHeartParticles] = useState<{ id: number; x: number; y: number; rot: number; size: number; delay: number }[]>([]);
 
-  const loadedIdRef = useRef<string | null>(null);
-
   useEffect(() => {
-    if (id && loadedIdRef.current !== id) {
-      loadedIdRef.current = id;
-      loadArticle(id);
-    }
+    loadArticle();
   }, [id]);
 
   useEffect(() => {
     const handleScroll = () => {
       const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
       if (totalHeight > 0) {
-        const progress = (window.scrollY / totalHeight) * 100;
+        const progress = Math.min(100, Math.max(0, (window.scrollY / totalHeight) * 100));
         setReadingProgress(progress);
       }
     };
 
-    window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const loadArticle = async (articleId: string) => {
+  const loadArticle = async () => {
+    if (!id) return;
     try {
-      window.scrollTo(0, 0);
       setLoading(true);
       setError(null);
-      const data = await fetchArticleByIdOrSlug(articleId);
+      const data = await fetchArticleByIdOrSlug(id);
       setArticle(data);
-      setHasLiked(Boolean(data.hasLiked));
+      setHasLiked(data.hasLiked || false);
       setLikeCount(data.likes || 0);
-      setLoading(false);
 
-      // Fetch other articles by the same author in background asynchronously
-      const authorName = data.authorName || data.author?.name || 'Aryan Gupta';
-      fetchPublicArticles('all')
-        .then((allArticles) => {
-          const filtered = allArticles.filter((a) => {
-            const aAuthor = a.authorName || a.author?.name || 'Aryan Gupta';
-            return aAuthor.toLowerCase() === authorName.toLowerCase() && a.id !== data.id && a.slug !== data.slug;
-          });
-          setAuthorArticles(filtered.slice(0, 3));
-        })
-        .catch(() => {});
+      // Fetch author articles
+      if (data.authorId || data.authorName) {
+        const allArticles = await fetchPublicArticles('all');
+        const filtered = allArticles
+          .filter((a) => a.id !== data.id && (a.authorId === data.authorId || a.authorName === data.authorName))
+          .slice(0, 3);
+        setAuthorArticles(filtered);
+      }
     } catch (err: any) {
-      console.error('Error fetching article:', err);
+      console.error('Error loading article:', err);
       setError(err.message || 'Failed to load article');
+    } finally {
       setLoading(false);
     }
   };
@@ -85,43 +78,41 @@ export const ArticlePage: React.FC = () => {
       return;
     }
 
+    // ⚡ INSTANT OPTIMISTIC UPDATE (0ms Latency like Instagram)
+    const prevLiked = hasLiked;
+    const prevCount = likeCount;
+    const nextLiked = !prevLiked;
+    const nextCount = nextLiked ? prevCount + 1 : Math.max(0, prevCount - 1);
+
+    // Synchronously update local UI state immediately
+    setHasLiked(nextLiked);
+    setLikeCount(nextCount);
+    setArticle((prev) => (prev ? { ...prev, likes: nextCount, hasLiked: nextLiked } : null));
+
+    // Background HTTP Server Sync
     try {
-      setLiking(true);
       const res = await toggleLikeArticle(article.id);
       setHasLiked(res.liked);
       setLikeCount(res.likes);
       setArticle((prev) => (prev ? { ...prev, likes: res.likes, hasLiked: res.liked } : null));
-
-      if (res.liked) {
-        const count = 9;
-        const particles = Array.from({ length: count }).map((_, i) => {
-          const angle = (i / count) * Math.PI * 2 + (Math.random() - 0.5) * 0.4;
-          const distance = 35 + Math.random() * 30;
-          return {
-            id: Date.now() + i,
-            x: Math.cos(angle) * distance,
-            y: Math.sin(angle) * distance - 30,
-            rot: (Math.random() - 0.5) * 60,
-            size: Math.random() > 0.4 ? 14 : 10,
-            delay: i * 25,
-          };
-        });
-        setHeartParticles(particles);
-        setTimeout(() => setHeartParticles([]), 1200);
-      }
     } catch (err: any) {
       console.error('Error toggling like:', err);
+      // Rollback on network failure
+      setHasLiked(prevLiked);
+      setLikeCount(prevCount);
+      setArticle((prev) => (prev ? { ...prev, likes: prevCount, hasLiked: prevLiked } : null));
       alert(err.message || 'Failed to toggle like');
-    } finally {
-      setLiking(false);
     }
   };
 
   const handleTitleDoubleClick = (e: React.MouseEvent) => {
     e.preventDefault();
-    if (!liking) {
-      handleToggleLike();
-    }
+
+    // Trigger Instagram-style screen-center big glowing heart burst
+    setShowBigHeart(true);
+    setTimeout(() => setShowBigHeart(false), 850);
+
+    handleToggleLike();
   };
 
   const handleCopyLink = () => {
@@ -144,6 +135,15 @@ export const ArticlePage: React.FC = () => {
   return (
     <div className="min-h-screen bg-paper text-ink font-sans flex flex-col transition-colors duration-200">
       <Header progress={readingProgress} />
+
+      {/* Instagram-Style Screen-Center Big Heart Popup */}
+      {showBigHeart && (
+        <div className="fixed inset-0 pointer-events-none z-50 flex items-center justify-center">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-insta-heart">
+            <Heart className="w-28 h-28 sm:w-36 sm:h-36 text-red-500 fill-red-500 filter drop-shadow-2xl opacity-90" />
+          </div>
+        </div>
+      )}
 
       <main className="flex-1 w-full">
         {loading ? (
