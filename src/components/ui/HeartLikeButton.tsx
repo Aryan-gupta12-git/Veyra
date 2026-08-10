@@ -21,6 +21,7 @@ export const HeartLikeButton: React.FC<HeartLikeButtonProps> = ({
 
   useEffect(() => {
     if (dotLottieRef.current && hasLiked) {
+      dotLottieRef.current.setSpeed(1.8);
       dotLottieRef.current.play();
     }
   }, [hasLiked]);
@@ -53,10 +54,14 @@ export const HeartLikeButton: React.FC<HeartLikeButtonProps> = ({
             <DotLottieReact
               dotLottieRefCallback={(dotLottie) => {
                 dotLottieRef.current = dotLottie;
+                if (dotLottie) {
+                  dotLottie.setSpeed(1.8);
+                }
               }}
               src="https://lottie.host/c99f236d-0f5a-40d7-93d2-bbce7ec2dd5b/iTjk8mF118.lottie"
               autoplay={true}
               loop={false}
+              speed={1.8}
               className="w-10 h-10 absolute -top-2 -left-2 pointer-events-none"
             />
           ) : (
