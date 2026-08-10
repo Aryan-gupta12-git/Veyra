@@ -185,8 +185,8 @@ export const Header: React.FC<HeaderProps> = ({
 
         {/* Right Column: Search & Profile */}
         <div className="flex items-center justify-end gap-2 sm:gap-4 shrink-0">
-          {/* Smooth Expanding Search Bar */}
-          <div className="relative flex items-center">
+          {/* Smooth Expanding Search Bar (Hidden on mobile unless search is open via triple-tap) */}
+          <div className={`relative flex items-center ${!isSearchOpen ? 'hidden sm:flex' : 'flex'}`}>
             <div
               className={`flex items-center overflow-hidden transition-all duration-300 ease-in-out bg-surface/80 border shadow-xs rounded-xl ${
                 isSearchOpen
