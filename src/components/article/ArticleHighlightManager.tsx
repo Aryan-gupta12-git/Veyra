@@ -118,6 +118,43 @@ export const ArticleHighlightManager: React.FC<ArticleHighlightManagerProps> = (
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  // Dynamic scroll & resize coordinate sync listener so popover stays locked to text while scrolling
+  useEffect(() => {
+    if (!pendingSelection && !activeHighlightPopover) return;
+
+    const handleScrollOrResize = () => {
+      if (pendingSelection) {
+        const selection = window.getSelection();
+        if (selection && !selection.isCollapsed && selection.rangeCount > 0) {
+          const range = selection.getRangeAt(0);
+          const clientRects = Array.from(range.getClientRects()).filter(
+            (r) => r.width > 0 && r.height > 0
+          );
+          const newRect = clientRects[0] || range.getBoundingClientRect();
+          setPendingSelection((prev) => (prev ? { ...prev, rect: newRect } : null));
+        }
+      } else if (activeHighlightPopover) {
+        const mark = document.querySelector(
+          `mark[data-highlight-id="${activeHighlightPopover.highlight.id}"]`
+        );
+        if (mark) {
+          const clientRects = Array.from(mark.getClientRects()).filter(
+            (r) => r.width > 0 && r.height > 0
+          );
+          const newRect = clientRects[0] || mark.getBoundingClientRect();
+          setActiveHighlightPopover((prev) => (prev ? { ...prev, rect: newRect } : null));
+        }
+      }
+    };
+
+    window.addEventListener('scroll', handleScrollOrResize, { passive: true });
+    window.addEventListener('resize', handleScrollOrResize, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', handleScrollOrResize);
+      window.removeEventListener('resize', handleScrollOrResize);
+    };
+  }, [pendingSelection, activeHighlightPopover]);
+
   const handleSaveHighlight = async () => {
     if (!pendingSelection) return;
     const res = await addHighlight({
