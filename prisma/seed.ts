@@ -70,10 +70,10 @@ async function main() {
     },
   });
 
-  // Clear existing articles to allow idempotency
-  await prisma.article.deleteMany({});
-
-  const now = new Date();
+  // Seed initial articles if database is empty
+  const existingArticlesCount = await prisma.article.count();
+  if (existingArticlesCount === 0) {
+    const now = new Date();
 
   // Article 1: ~8 minutes ago (Productivity)
   await prisma.article.create({
@@ -155,6 +155,7 @@ async function main() {
       createdAt: new Date(now.getTime() - 48 * 60 * 60 * 1000),
     },
   });
+  }
 
   console.log('✅ Seed completed successfully! Admin: aryan@veyra.dev / password123');
 }
