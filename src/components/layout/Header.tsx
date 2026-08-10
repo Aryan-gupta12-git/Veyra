@@ -12,6 +12,7 @@ interface HeaderProps {
   pageTitle?: string;
   hideThemeToggle?: boolean;
   hideSearch?: boolean;
+  hideUserMenu?: boolean;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -22,6 +23,7 @@ export const Header: React.FC<HeaderProps> = ({
   pageTitle,
   hideThemeToggle = false,
   hideSearch = false,
+  hideUserMenu = false,
 }) => {
   const navigate = useNavigate();
   const [isScrolled, setIsScrolled] = useState(false);
@@ -226,7 +228,7 @@ export const Header: React.FC<HeaderProps> = ({
             </div>
           )}
 
-          {user ? (
+          {user && !hideUserMenu ? (
             <div className="relative shrink-0" ref={profileRef}>
               <button
                 type="button"

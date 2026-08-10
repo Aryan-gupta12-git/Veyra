@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Header from '../components/layout/Header';
@@ -11,13 +11,26 @@ interface AuthPageProps {
 
 export const AuthPage: React.FC<AuthPageProps> = ({ isSignUp = false }) => {
   const navigate = useNavigate();
-  const { login, signup, loading: authLoading } = useAuth();
+  const { user, isAuthenticated, logout, isAdmin, login, signup, loading: authLoading } = useAuth();
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (isAuthenticated && !authLoading) {
+      const confirmLogout = window.confirm(
+        `You are currently logged in as ${user?.name || 'User'}. Do you want to log out?`
+      );
+      if (confirmLogout) {
+        logout();
+      } else {
+        navigate(isAdmin ? '/admin' : '/', { replace: true });
+      }
+    }
+  }, [isAuthenticated, authLoading]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,7 +59,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ isSignUp = false }) => {
 
   return (
     <div className="min-h-screen bg-paper text-ink font-sans flex flex-col transition-colors duration-200">
-      <Header hideSearch={true} />
+      <Header hideSearch={true} hideUserMenu={true} />
 
       <main className="flex-1 min-h-[calc(100vh-4rem)] max-w-[1440px] mx-auto px-6 sm:px-8 pt-8 sm:pt-12 pb-16 w-full flex flex-col items-center justify-center">
         <div className="w-full max-w-[420px] my-auto">
