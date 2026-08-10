@@ -271,9 +271,9 @@ export const Header: React.FC<HeaderProps> = ({
                       <Link
                         to="/admin"
                         onClick={() => setProfileMenuOpen(false)}
-                        className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium text-muted hover:text-ink hover:bg-black/[0.03] dark:hover:bg-white/[0.04] transition-colors"
+                        className="group flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium text-muted hover:text-ink hover:bg-black/[0.03] dark:hover:bg-white/[0.04] transition-colors"
                       >
-                        <ShieldCheck className="w-4 h-4 text-ink shrink-0" />
+                        <ShieldCheck className="w-4 h-4 text-ink/80 group-hover:text-ink transition-colors shrink-0" />
                         <span>Admin Dashboard</span>
                       </Link>
                     )}
@@ -281,27 +281,27 @@ export const Header: React.FC<HeaderProps> = ({
                     <Link
                       to="/profile"
                       onClick={() => setProfileMenuOpen(false)}
-                      className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium text-muted hover:text-ink hover:bg-black/[0.03] dark:hover:bg-white/[0.04] transition-colors"
+                      className="group flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium text-muted hover:text-ink hover:bg-black/[0.03] dark:hover:bg-white/[0.04] transition-colors"
                     >
-                      <UserIcon className="w-4 h-4 text-muted shrink-0" />
+                      <UserIcon className="w-4 h-4 text-ink/80 group-hover:text-ink transition-colors shrink-0" />
                       <span>Profile</span>
                     </Link>
 
                     <Link
                       to="/memory-feed"
                       onClick={() => setProfileMenuOpen(false)}
-                      className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium text-muted hover:text-ink hover:bg-black/[0.03] dark:hover:bg-white/[0.04] transition-colors"
+                      className="group flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium text-muted hover:text-ink hover:bg-black/[0.03] dark:hover:bg-white/[0.04] transition-colors"
                     >
-                      <Brain className="w-4 h-4 text-purple-600 dark:text-purple-400 shrink-0" />
+                      <Brain className="w-4 h-4 text-ink/80 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors shrink-0" />
                       <span>Memory Feed</span>
                     </Link>
 
                     <Link
                       to="/liked"
                       onClick={() => setProfileMenuOpen(false)}
-                      className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium text-muted hover:text-ink hover:bg-black/[0.03] dark:hover:bg-white/[0.04] transition-colors"
+                      className="group flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium text-muted hover:text-ink hover:bg-black/[0.03] dark:hover:bg-white/[0.04] transition-colors"
                     >
-                      <Heart className="w-4 h-4 text-red-500 dark:text-red-500 shrink-0" />
+                      <Heart className="w-4 h-4 text-ink/80 group-hover:text-red-500 dark:group-hover:text-red-400 transition-colors shrink-0" />
                       <span>Liked Articles</span>
                     </Link>
                   </div>
@@ -315,7 +315,7 @@ export const Header: React.FC<HeaderProps> = ({
                       }}
                       className="w-full text-left flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium text-muted hover:text-red-700 dark:hover:text-red-400 transition-colors cursor-pointer group"
                     >
-                      <LogOut className="w-4 h-4 text-muted group-hover:text-red-700 dark:group-hover:text-red-400 shrink-0 transition-colors" />
+                      <LogOut className="w-4 h-4 text-ink/80 group-hover:text-red-700 dark:group-hover:text-red-400 shrink-0 transition-colors" />
                       <span>Sign Out</span>
                     </button>
                   </div>

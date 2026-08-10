@@ -118,7 +118,7 @@ export const HighlightPopover: React.FC<HighlightPopoverProps> = ({
                 type="button"
                 onClick={handleSaveKnowledge}
                 disabled={saving}
-                className="p-1.5 rounded-lg text-purple-700 dark:text-purple-400 hover:bg-purple-500/10 active:scale-95 transition-all cursor-pointer disabled:opacity-50"
+                className="p-1.5 rounded-lg text-ink/80 hover:text-purple-600 dark:hover:text-purple-400 hover:bg-purple-500/10 active:scale-95 transition-all cursor-pointer disabled:opacity-50"
                 title="Add to Knowledge"
               >
                 <Brain className="w-3.5 h-3.5 shrink-0" />
@@ -126,7 +126,7 @@ export const HighlightPopover: React.FC<HighlightPopoverProps> = ({
             ) : (
               <Link
                 to="/login"
-                className="p-1.5 rounded-lg text-purple-700 dark:text-purple-400 hover:bg-purple-500/10 active:scale-95 transition-all cursor-pointer"
+                className="p-1.5 rounded-lg text-ink/80 hover:text-purple-600 dark:hover:text-purple-400 hover:bg-purple-500/10 active:scale-95 transition-all cursor-pointer"
                 title="Sign in to add to Knowledge"
               >
                 <Brain className="w-3.5 h-3.5 shrink-0" />
@@ -142,7 +142,7 @@ export const HighlightPopover: React.FC<HighlightPopoverProps> = ({
                 type="button"
                 onClick={handleSaveHighlight}
                 disabled={saving}
-                className="p-1.5 rounded-lg text-amber-700 dark:text-amber-400 hover:bg-amber-500/10 active:scale-95 transition-all cursor-pointer disabled:opacity-50"
+                className="p-1.5 rounded-lg text-ink/80 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-amber-500/10 active:scale-95 transition-all cursor-pointer disabled:opacity-50"
                 title="Highlight text"
               >
                 <Highlighter className="w-3.5 h-3.5 shrink-0" />
@@ -150,7 +150,7 @@ export const HighlightPopover: React.FC<HighlightPopoverProps> = ({
             ) : (
               <Link
                 to="/login"
-                className="p-1.5 rounded-lg text-muted hover:text-ink hover:bg-black/[0.05] dark:hover:bg-white/[0.08] active:scale-95 transition-all cursor-pointer"
+                className="p-1.5 rounded-lg text-ink/80 hover:text-ink hover:bg-black/[0.05] dark:hover:bg-white/[0.08] active:scale-95 transition-all cursor-pointer"
                 title="Sign in to highlight"
               >
                 <LogIn className="w-3.5 h-3.5 shrink-0" />
@@ -198,7 +198,7 @@ export const HighlightPopover: React.FC<HighlightPopoverProps> = ({
               type="button"
               onClick={handleRemove}
               disabled={deleting}
-              className="p-1.5 rounded-lg text-red-600 dark:text-red-400 hover:bg-red-500/10 active:scale-95 transition-all cursor-pointer disabled:opacity-50"
+              className="p-1.5 rounded-lg text-ink/80 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-500/10 active:scale-95 transition-all cursor-pointer disabled:opacity-50"
               title="Remove highlight"
             >
               <Trash2 className="w-3.5 h-3.5 shrink-0" />
