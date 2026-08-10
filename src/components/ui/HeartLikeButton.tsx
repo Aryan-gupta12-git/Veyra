@@ -53,7 +53,7 @@ export const HeartLikeButton: React.FC<HeartLikeButtonProps> = ({
         }`}
         title={hasLiked ? 'Unlike article' : 'Like article'}
       >
-        <div className="relative w-6 h-6 flex items-center justify-center shrink-0">
+        <div className="relative w-5 h-5 flex items-center justify-center shrink-0 overflow-visible">
           <DotLottieReact
             dotLottieRefCallback={(dotLottie) => {
               dotLottieRef.current = dotLottie;
@@ -70,10 +70,10 @@ export const HeartLikeButton: React.FC<HeartLikeButtonProps> = ({
             autoplay={hasLiked}
             loop={false}
             speed={1.8}
-            className="w-10 h-10 absolute -top-2 -left-2 pointer-events-none"
+            className="w-7 h-7 absolute -top-1 -left-1 pointer-events-none"
           />
         </div>
-        <span className="text-[11px] select-none ml-1">{likeCount}</span>
+        <span className="text-[11px] select-none ml-0.5">{likeCount}</span>
       </button>
     </div>
   );
