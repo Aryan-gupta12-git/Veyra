@@ -37,45 +37,33 @@ function computePillPosition(
   const gap = 8; // 8px spacing directly above selection
   const minEdgePadding = 12; // Keep pill inside viewport
 
-  // Calculate centered horizontal position over first visible line of selection
-  const selectionCenterX = rect.left + rect.width / 2;
-  const clampedLeft = Math.max(
-    approxWidth / 2 + minEdgePadding,
-    Math.min(viewportWidth - approxWidth / 2 - minEdgePadding, selectionCenterX)
-  );
+  const scrollX = typeof window !== 'undefined' ? window.scrollX : 0;
+  const scrollY = typeof window !== 'undefined' ? window.scrollY : 0;
 
-  console.log('[HIGHLIGHT POPOVER RECT]', {
-    selectionRect: {
-      top: rect.top,
-      left: rect.left,
-      right: rect.right,
-      bottom: rect.bottom,
-      width: rect.width,
-      height: rect.height,
-    },
-    buttonDimensions: { width: approxWidth, height: buttonHeight },
-    scroll: { x: window.scrollX, y: window.scrollY },
-    coordinateSystem: 'position: fixed via React Portal to document.body',
-  });
+  // Calculate centered horizontal position relative to document.body
+  const selectionCenterX = rect.left + scrollX + rect.width / 2;
+  const minLeft = approxWidth / 2 + minEdgePadding + scrollX;
+  const maxLeft = viewportWidth - approxWidth / 2 - minEdgePadding + scrollX;
+  const clampedLeft = Math.max(minLeft, Math.min(maxLeft, selectionCenterX));
 
   // Check if there is enough space above the selection (top viewport boundary)
   const spaceAbove = rect.top;
   const isTooCloseToTop = spaceAbove < buttonHeight + gap + 8;
 
   if (!isTooCloseToTop) {
-    // Position centered directly 8px ABOVE selection line using pure fixed viewport coordinates
+    // Position centered directly 8px ABOVE selection line anchored to document.body
     return {
-      position: 'fixed',
-      top: `${rect.top - gap}px`,
+      position: 'absolute',
+      top: `${rect.top + scrollY - gap}px`,
       left: `${clampedLeft}px`,
       transform: 'translate(-50%, -100%)',
     };
   }
 
-  // Fallback: Position centered directly 8px BELOW selection line if near top edge
+  // Fallback: Position centered directly 8px BELOW selection line anchored to document.body
   return {
-    position: 'fixed',
-    top: `${rect.bottom + gap}px`,
+    position: 'absolute',
+    top: `${rect.bottom + scrollY + gap}px`,
     left: `${clampedLeft}px`,
     transform: 'translate(-50%, 0)',
   };
