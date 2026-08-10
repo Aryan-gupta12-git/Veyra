@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useRef, useEffect } from 'react';
+import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 import { Heart } from 'lucide-react';
 
 interface HeartLikeButtonProps {
@@ -16,35 +17,14 @@ export const HeartLikeButton: React.FC<HeartLikeButtonProps> = ({
   disabled = false,
   isAdmin = false,
 }) => {
-  const [particles, setParticles] = useState<
-    { id: number; x: number; y: number; rot: number; size: number; delay: number }[]
-  >([]);
+  const dotLottieRef = useRef<any>(null);
 
-  const handleLikeClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-
-    if (!hasLiked) {
-      // Generate 9 radial spring bursting heart particles
-      const count = 9;
-      const newParticles = Array.from({ length: count }).map((_, i) => {
-        const angle = (i / count) * Math.PI * 2 + (Math.random() - 0.5) * 0.4;
-        const distance = 35 + Math.random() * 30;
-        return {
-          id: Date.now() + i,
-          x: Math.cos(angle) * distance,
-          y: Math.sin(angle) * distance - 30,
-          rot: (Math.random() - 0.5) * 60,
-          size: Math.random() > 0.4 ? 14 : 10,
-          delay: i * 25,
-        };
-      });
-      setParticles(newParticles);
-      setTimeout(() => setParticles([]), 1200);
+  useEffect(() => {
+    if (dotLottieRef.current && hasLiked) {
+      dotLottieRef.current.setSpeed(1.8);
+      dotLottieRef.current.play();
     }
-
-    onToggleLike();
-  };
+  }, [hasLiked]);
 
   if (isAdmin) {
     return (
@@ -62,43 +42,36 @@ export const HeartLikeButton: React.FC<HeartLikeButtonProps> = ({
     <div className="relative inline-flex items-center">
       <button
         type="button"
-        onClick={handleLikeClick}
+        onClick={onToggleLike}
         disabled={disabled}
         className={`flex items-center gap-1.5 transition-colors cursor-pointer disabled:opacity-50 relative group ${
           hasLiked ? 'text-red-600 dark:text-red-500 font-semibold' : 'text-muted hover:text-ink'
         }`}
         title={hasLiked ? 'Unlike article' : 'Like article'}
       >
-        <Heart
-          className={`w-4.5 h-4.5 transition-all duration-300 ${
-            hasLiked
-              ? 'fill-red-600 text-red-600 dark:fill-red-500 dark:text-red-500 scale-110 animate-heart-pulse drop-shadow-xs'
-              : 'text-muted group-hover:text-ink scale-100 group-hover:scale-110'
-          }`}
-        />
-        <span className="text-[11px] select-none">{likeCount}</span>
+        <div className="relative w-6 h-6 flex items-center justify-center shrink-0">
+          {hasLiked ? (
+            <DotLottieReact
+              dotLottieRefCallback={(dotLottie) => {
+                dotLottieRef.current = dotLottie;
+                if (dotLottie) {
+                  dotLottie.setSpeed(1.8);
+                }
+              }}
+              src="https://lottie.host/c99f236d-0f5a-40d7-93d2-bbce7ec2dd5b/iTjk8mF118.lottie"
+              autoplay={true}
+              loop={false}
+              speed={1.8}
+              className="w-10 h-10 absolute -top-2 -left-2 pointer-events-none"
+            />
+          ) : (
+            <Heart
+              className="w-4 h-4 text-muted group-hover:text-red-500 transition-all transform group-hover:scale-110"
+            />
+          )}
+        </div>
+        <span className="text-[11px] select-none ml-1">{likeCount}</span>
       </button>
-
-      {/* Floating Pop-out Bursting Heart Particles */}
-      {particles.map((p) => (
-        <span
-          key={p.id}
-          className="absolute top-0 left-0 pointer-events-none z-50 animate-heart-pop"
-          style={
-            {
-              '--pop-x': `${p.x}px`,
-              '--pop-y': `${p.y}px`,
-              '--pop-r': `${p.rot}deg`,
-              animationDelay: `${p.delay}ms`,
-            } as React.CSSProperties
-          }
-        >
-          <Heart
-            className="fill-red-500 text-red-500 dark:fill-red-500 dark:text-red-500 filter drop-shadow-xs"
-            style={{ width: `${p.size}px`, height: `${p.size}px` }}
-          />
-        </span>
-      ))}
     </div>
   );
 };
