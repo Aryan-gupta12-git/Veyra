@@ -24,6 +24,7 @@ export const ArticlePage: React.FC = () => {
   const [hasLiked, setHasLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(0);
   const [liking, setLiking] = useState(false);
+  const [heartParticles, setHeartParticles] = useState<{ id: number; x: number; y: number; rot: number; size: number }[]>([]);
 
   const loadedIdRef = useRef<string | null>(null);
 
@@ -89,6 +90,18 @@ export const ArticlePage: React.FC = () => {
       setHasLiked(res.liked);
       setLikeCount(res.likes);
       setArticle((prev) => (prev ? { ...prev, likes: res.likes, hasLiked: res.liked } : null));
+
+      if (res.liked) {
+        const particles = Array.from({ length: 9 }).map((_, i) => ({
+          id: Date.now() + i,
+          x: (Math.random() - 0.5) * 54,
+          y: -35 - Math.random() * 40,
+          rot: (Math.random() - 0.5) * 70,
+          size: Math.random() > 0.4 ? 14 : 10,
+        }));
+        setHeartParticles(particles);
+        setTimeout(() => setHeartParticles([]), 900);
+      }
     } catch (err: any) {
       console.error('Error toggling like:', err);
       alert(err.message || 'Failed to toggle like');
@@ -178,7 +191,7 @@ export const ArticlePage: React.FC = () => {
                 </div>
 
                 <div className="flex items-center gap-4">
-                  {/* Like Count / Button */}
+                  {/* Like Count / Button with Floating Heart Burst */}
                   {isAdmin ? (
                     <div
                       className="flex items-center gap-1.5 text-muted cursor-default"
@@ -188,21 +201,43 @@ export const ArticlePage: React.FC = () => {
                       <span className="text-[11px]">{likeCount}</span>
                     </div>
                   ) : (
-                    <button
-                      onClick={handleToggleLike}
-                      disabled={liking}
-                      className={`flex items-center gap-1.5 transition-colors cursor-pointer disabled:opacity-50 ${
-                        hasLiked ? 'text-rose-600 dark:text-rose-400 font-medium' : 'text-muted hover:text-ink'
-                      }`}
-                      title={hasLiked ? 'Unlike article' : 'Like article'}
-                    >
-                      <Heart
-                        className={`w-4 h-4 transition-transform ${
-                          hasLiked ? 'fill-rose-600 text-rose-600 dark:fill-rose-400 dark:text-rose-400 scale-110' : ''
+                    <div className="relative inline-flex items-center">
+                      <button
+                        onClick={handleToggleLike}
+                        disabled={liking}
+                        className={`flex items-center gap-1.5 transition-colors cursor-pointer disabled:opacity-50 relative ${
+                          hasLiked ? 'text-rose-600 dark:text-rose-400 font-medium' : 'text-muted hover:text-ink'
                         }`}
-                      />
-                      <span className="text-[11px]">{likeCount}</span>
-                    </button>
+                        title={hasLiked ? 'Unlike article' : 'Like article'}
+                      >
+                        <Heart
+                          className={`w-4 h-4 transition-transform ${
+                            hasLiked ? 'fill-rose-600 text-rose-600 dark:fill-rose-400 dark:text-rose-400 scale-110' : ''
+                          }`}
+                        />
+                        <span className="text-[11px]">{likeCount}</span>
+                      </button>
+
+                      {/* Floating Pop-out Heart Particles */}
+                      {heartParticles.map((p) => (
+                        <span
+                          key={p.id}
+                          className="absolute top-0 left-1 pointer-events-none z-50 animate-heart-pop"
+                          style={
+                            {
+                              '--tw-translate-x': `${p.x}px`,
+                              '--tw-translate-y': `${p.y}px`,
+                              '--tw-rotate': `${p.rot}deg`,
+                            } as React.CSSProperties
+                          }
+                        >
+                          <Heart
+                            className="fill-rose-500 text-rose-500 filter drop-shadow-xs"
+                            style={{ width: `${p.size}px`, height: `${p.size}px` }}
+                          />
+                        </span>
+                      ))}
+                    </div>
                   )}
 
                   <button

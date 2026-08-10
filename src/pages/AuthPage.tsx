@@ -46,7 +46,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ isSignUp = false }) => {
 
   return (
     <div className="min-h-screen bg-paper text-ink font-sans flex flex-col transition-colors duration-200">
-      <Header />
+      <Header hideSearch={true} />
 
       <main className="flex-1 min-h-[calc(100vh-4rem)] max-w-[1440px] mx-auto px-6 sm:px-8 pt-8 sm:pt-12 pb-16 w-full flex flex-col items-center justify-center">
         <div className="w-full max-w-[420px] my-auto">
@@ -60,7 +60,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ isSignUp = false }) => {
             <p className="text-xs text-muted font-light mt-1">
               {isSignUp
                 ? 'Sign up to discover personalized articles.'
-                : 'Sign in to access your personalized article feed.'}
+                : 'Log in to access your personalized article feed.'}
             </p>
           </div>
 
@@ -121,9 +121,9 @@ export const AuthPage: React.FC<AuthPageProps> = ({ isSignUp = false }) => {
           <button
             type="submit"
             disabled={loading || authLoading}
-            className="w-full py-2.5 px-4 bg-ink text-paper text-xs font-semibold rounded-xl hover:opacity-90 transition-opacity flex items-center justify-center gap-2 shadow-xs disabled:opacity-50 mt-2"
+            className="w-full py-2.5 px-4 bg-ink text-paper text-xs font-semibold rounded-xl hover:opacity-90 transition-opacity flex items-center justify-center gap-2 shadow-xs disabled:opacity-50 mt-2 cursor-pointer"
           >
-            <span>{isSignUp ? 'Create Account' : 'Sign In'}</span>
+            <span>{isSignUp ? 'Create Account' : 'Log In'}</span>
             <ArrowRight className="w-4 h-4" />
           </button>
         </form>
@@ -134,7 +134,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ isSignUp = false }) => {
             <span>
               Already have an account?{' '}
               <Link to="/login" className="text-ink font-medium underline">
-                Sign in
+                Log in
               </Link>
             </span>
           ) : (

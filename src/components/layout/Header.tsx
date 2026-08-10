@@ -11,6 +11,7 @@ interface HeaderProps {
   authorName?: string;
   pageTitle?: string;
   hideThemeToggle?: boolean;
+  hideSearch?: boolean;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -20,6 +21,7 @@ export const Header: React.FC<HeaderProps> = ({
   authorName,
   pageTitle,
   hideThemeToggle = false,
+  hideSearch = false,
 }) => {
   const navigate = useNavigate();
   const [isScrolled, setIsScrolled] = useState(false);
@@ -172,55 +174,57 @@ export const Header: React.FC<HeaderProps> = ({
 
         {/* Right Column: Search & Profile */}
         <div className="flex items-center justify-end gap-2 sm:gap-4 shrink-0">
-          {/* Smooth Expanding Search Bar (Hidden on mobile unless search is open via triple-tap) */}
-          <div className={`relative flex items-center ${!isSearchOpen ? 'hidden sm:flex' : 'flex'}`}>
-            <div
-              className={`flex items-center overflow-hidden transition-all duration-300 ease-in-out bg-surface/80 border shadow-xs rounded-xl ${
-                isSearchOpen
-                  ? 'w-48 sm:w-72 px-3 py-1.5 border-border/80 focus-within:border-ink'
-                  : 'px-3 py-1.5 justify-center cursor-pointer border-border/70 hover:border-ink hover:bg-surface'
-              }`}
-              onClick={() => {
-                if (!isSearchOpen) setIsSearchOpen(true);
-              }}
-            >
-              <button
-                type="button"
-                className="p-0.5 text-muted hover:text-ink transition-colors shrink-0"
-                title="Search articles"
-              >
-                <Search className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-muted" />
-              </button>
-
-              <input
-                ref={searchInputRef}
-                type="text"
-                value={currentSearchValue}
-                onChange={(e) => handleQueryChange(e.target.value)}
-                placeholder="Search articles..."
-                className={`w-full bg-transparent text-xs sm:text-sm text-ink placeholder:text-muted/50 font-sans focus:outline-none transition-all duration-300 pl-2 ${
+          {/* Smooth Expanding Search Bar (Hidden when hideSearch is true or on mobile when closed) */}
+          {!hideSearch && (
+            <div className={`relative flex items-center ${!isSearchOpen ? 'hidden sm:flex' : 'flex'}`}>
+              <div
+                className={`flex items-center overflow-hidden transition-all duration-300 ease-in-out bg-surface/80 border shadow-xs rounded-xl ${
                   isSearchOpen
-                    ? 'opacity-100 pointer-events-auto'
-                    : 'w-0 opacity-0 pointer-events-none hidden'
+                    ? 'w-48 sm:w-72 px-3 py-1.5 border-border/80 focus-within:border-ink'
+                    : 'px-3 py-1.5 justify-center cursor-pointer border-border/70 hover:border-ink hover:bg-surface'
                 }`}
-              />
-
-              {isSearchOpen && (
+                onClick={() => {
+                  if (!isSearchOpen) setIsSearchOpen(true);
+                }}
+              >
                 <button
                   type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleQueryChange('');
-                    setIsSearchOpen(false);
-                  }}
-                  className="p-1 text-muted hover:text-ink transition-colors shrink-0 ml-1 rounded-md hover:bg-black/[0.04] dark:hover:bg-white/[0.05]"
-                  title="Close search"
+                  className="p-0.5 text-muted hover:text-ink transition-colors shrink-0"
+                  title="Search articles"
                 >
-                  <X className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                  <Search className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-muted" />
                 </button>
-              )}
+
+                <input
+                  ref={searchInputRef}
+                  type="text"
+                  value={currentSearchValue}
+                  onChange={(e) => handleQueryChange(e.target.value)}
+                  placeholder="Search articles..."
+                  className={`w-full bg-transparent text-xs sm:text-sm text-ink placeholder:text-muted/50 font-sans focus:outline-none transition-all duration-300 pl-2 ${
+                    isSearchOpen
+                      ? 'opacity-100 pointer-events-auto'
+                      : 'w-0 opacity-0 pointer-events-none hidden'
+                  }`}
+                />
+
+                {isSearchOpen && (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleQueryChange('');
+                      setIsSearchOpen(false);
+                    }}
+                    className="p-1 text-muted hover:text-ink transition-colors shrink-0 ml-1 rounded-md hover:bg-black/[0.04] dark:hover:bg-white/[0.05]"
+                    title="Close search"
+                  >
+                    <X className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                  </button>
+                )}
+              </div>
             </div>
-          </div>
+          )}
 
           {user ? (
             <div className="relative shrink-0" ref={profileRef}>
@@ -308,9 +312,9 @@ export const Header: React.FC<HeaderProps> = ({
             <div className="flex items-center gap-2">
               <Link
                 to="/login"
-                className="px-3.5 py-1.5 text-xs font-medium text-ink hover:text-muted transition-colors"
+                className="px-3.5 py-1.5 text-xs font-semibold text-ink hover:text-muted transition-colors"
               >
-                Sign In
+                Log In
               </Link>
             </div>
           )}
