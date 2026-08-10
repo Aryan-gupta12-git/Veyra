@@ -102,7 +102,14 @@ export const ArticleHighlightManager: React.FC<ArticleHighlightManagerProps> = (
     };
 
     document.addEventListener('selectionchange', handleSelectionChange);
-    return () => document.removeEventListener('selectionchange', handleSelectionChange);
+    document.addEventListener('touchend', handleSelectionChange, { passive: true });
+    document.addEventListener('mouseup', handleSelectionChange);
+
+    return () => {
+      document.removeEventListener('selectionchange', handleSelectionChange);
+      document.removeEventListener('touchend', handleSelectionChange);
+      document.removeEventListener('mouseup', handleSelectionChange);
+    };
   }, [contentRef]);
 
   // Dismiss popover on outside click

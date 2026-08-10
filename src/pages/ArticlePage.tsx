@@ -19,7 +19,7 @@ const ArticleContentBody = React.memo<{ content: string; contentRef: React.RefOb
       return (
         <div
           ref={contentRef}
-          className="veyra-reader-content prose dark:prose-invert max-w-none text-ink font-serif leading-relaxed"
+          className="veyra-reader-content prose dark:prose-invert max-w-none text-ink font-serif leading-relaxed select-text cursor-text"
           dangerouslySetInnerHTML={{ __html: content }}
         />
       );
@@ -28,7 +28,7 @@ const ArticleContentBody = React.memo<{ content: string; contentRef: React.RefOb
     return (
       <div
         ref={contentRef}
-        className="veyra-reader-content prose dark:prose-invert max-w-none text-ink font-serif leading-relaxed"
+        className="veyra-reader-content prose dark:prose-invert max-w-none text-ink font-serif leading-relaxed select-text cursor-text"
       >
         {paragraphs.map((pText, idx) => (
           <p key={idx}>{pText.trim()}</p>
@@ -198,6 +198,11 @@ export const ArticlePage: React.FC = () => {
   };
 
   const handleArticleTapOrClick = (e: React.MouseEvent | React.TouchEvent) => {
+    const sel = window.getSelection();
+    if (sel && !sel.isCollapsed && sel.toString().trim().length > 0) {
+      return;
+    }
+
     const target = e.target as HTMLElement;
     // Do not trigger double-tap like when tapping interactive controls
     if (target.closest('a, button, input, textarea, [role="button"]')) {
