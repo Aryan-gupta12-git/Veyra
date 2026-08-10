@@ -177,18 +177,6 @@ export const Header: React.FC<HeaderProps> = ({
             </div>
           )}
 
-          {/* Admin Workspace Quick Link for Admins */}
-          {user && isAdmin && (
-            <Link
-              to="/admin"
-              className="hidden sm:inline-flex items-center gap-1.5 sm:gap-2 px-3 py-1.5 rounded-xl border border-border/70 bg-surface/80 text-ink text-xs sm:text-sm font-semibold hover:border-ink transition-all shadow-xs shrink-0"
-              title="Admin Panel"
-            >
-              <ShieldCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-ink shrink-0" />
-              <span>Admin Panel</span>
-            </Link>
-          )}
-
           {user ? (
             <div className="relative shrink-0" ref={profileRef}>
               <button
@@ -197,14 +185,14 @@ export const Header: React.FC<HeaderProps> = ({
                 className="flex items-center gap-1.5 sm:gap-2 px-3 py-1.5 rounded-xl border border-border/70 bg-surface/80 hover:border-ink transition-all shadow-xs cursor-pointer group"
                 title="Account Menu"
               >
-                {/* Mobile View: First Letter Only (No grey box) */}
+                {/* Mobile View */}
                 <span className="sm:hidden text-xs font-semibold text-ink uppercase">
-                  {user.name ? user.name.trim().charAt(0).toUpperCase() : 'U'}
+                  {isAdmin ? 'Admin' : (user.name ? user.name.trim().charAt(0).toUpperCase() : 'U')}
                 </span>
 
-                {/* Desktop View: Full Name */}
+                {/* Desktop View */}
                 <span className="hidden sm:inline text-xs sm:text-sm font-semibold text-ink truncate max-w-[140px] sm:max-w-[180px]">
-                  {user.name}
+                  {isAdmin ? 'Admin' : user.name}
                 </span>
 
                 <ChevronDown
@@ -218,11 +206,24 @@ export const Header: React.FC<HeaderProps> = ({
               {profileMenuOpen && (
                 <div className="absolute right-0 top-full mt-2 z-50 w-56 p-1.5 rounded-xl border border-border/80 bg-surface shadow-lg backdrop-blur-md space-y-0.5 animate-fade-in">
                   <div className="px-3 py-2 border-b border-border/50">
-                    <p className="text-xs font-semibold text-ink truncate">{user.name}</p>
+                    <p className="text-xs font-semibold text-ink truncate">
+                      {isAdmin ? 'Admin' : user.name}
+                    </p>
                     <p className="text-[10px] text-muted truncate">{user.email}</p>
                   </div>
 
                   <div className="py-1">
+                    {isAdmin && (
+                      <Link
+                        to="/admin"
+                        onClick={() => setProfileMenuOpen(false)}
+                        className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium text-muted hover:text-ink hover:bg-black/[0.03] dark:hover:bg-white/[0.04] transition-colors"
+                      >
+                        <ShieldCheck className="w-4 h-4 text-ink shrink-0" />
+                        <span>Admin Dashboard</span>
+                      </Link>
+                    )}
+
                     <Link
                       to="/profile"
                       onClick={() => setProfileMenuOpen(false)}
