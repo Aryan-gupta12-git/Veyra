@@ -410,33 +410,37 @@ blockquote,
 
 /* Kindle-Style Personal Highlight Styling */
 .veyra-highlight {
-  background-color: #FBEA95;
-  color: #1A1816;
+  background-color: rgba(218, 184, 92, 0.30);
+  color: inherit;
   border-radius: 2px;
   padding: 1px 0;
-  box-shadow: 0 0 0 1px #E5D275;
-  transition: background-color 150ms ease, box-shadow 150ms ease;
+  box-shadow: none;
+  transition: background-color 150ms ease;
   text-decoration: none;
 }
 
 .veyra-highlight:hover {
-  background-color: #F5E07B;
-  box-shadow: 0 0 0 1px #D9C35F;
+  background-color: rgba(218, 184, 92, 0.45);
 }
 
 .dark .veyra-highlight {
-  background-color: #59471A;
-  color: #FFF8E7;
-  box-shadow: 0 0 0 1px #8C702B;
+  background-color: rgba(218, 178, 86, 0.22);
+  color: inherit;
+  box-shadow: none;
 }
 
 .dark .veyra-highlight:hover {
-  background-color: #6E5820;
-  box-shadow: 0 0 0 1px #A38435;
+  background-color: rgba(218, 178, 86, 0.35);
 }
 
-.theme-studio .veyra-highlight {
-  background-color: #FBEA95;
-  color: #141414;
-  box-shadow: 0 0 0 1px #141414;
+.theme-studio .veyra-highlight,
+.theme-white .veyra-highlight {
+  background-color: rgba(201, 151, 72, 0.28);
+  color: inherit;
+  box-shadow: none;
+}
+
+.theme-studio .veyra-highlight:hover,
+.theme-white .veyra-highlight:hover {
+  background-color: rgba(201, 151, 72, 0.42);
 }
