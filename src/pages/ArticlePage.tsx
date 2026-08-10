@@ -212,13 +212,13 @@ export const ArticlePage: React.FC = () => {
                         onClick={handleToggleLike}
                         disabled={liking}
                         className={`flex items-center gap-1.5 transition-colors cursor-pointer disabled:opacity-50 relative ${
-                          hasLiked ? 'text-rose-600 dark:text-rose-400 font-medium' : 'text-muted hover:text-ink'
+                          hasLiked ? 'text-red-600 dark:text-red-500 font-semibold' : 'text-muted hover:text-ink'
                         }`}
                         title={hasLiked ? 'Unlike article' : 'Like article'}
                       >
                         <Heart
                           className={`w-4 h-4 transition-transform ${
-                            hasLiked ? 'fill-rose-600 text-rose-600 dark:fill-rose-400 dark:text-rose-400 scale-110' : ''
+                            hasLiked ? 'fill-red-600 text-red-600 dark:fill-red-500 dark:text-red-500 scale-110 drop-shadow-xs' : ''
                           }`}
                         />
                         <span className="text-[11px]">{likeCount}</span>
@@ -239,7 +239,7 @@ export const ArticlePage: React.FC = () => {
                           }
                         >
                           <Heart
-                            className="fill-rose-500 text-rose-500 filter drop-shadow-xs"
+                            className="fill-red-500 text-red-500 dark:fill-red-500 dark:text-red-500 filter drop-shadow-xs"
                             style={{ width: `${p.size}px`, height: `${p.size}px` }}
                           />
                         </span>

@@ -289,7 +289,7 @@ export const Header: React.FC<HeaderProps> = ({
                       onClick={() => setProfileMenuOpen(false)}
                       className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium text-muted hover:text-ink hover:bg-black/[0.03] dark:hover:bg-white/[0.04] transition-colors"
                     >
-                      <Heart className="w-4 h-4 text-rose-500 shrink-0" />
+                      <Heart className="w-4 h-4 text-red-500 dark:text-red-500 shrink-0" />
                       <span>Liked Articles</span>
                     </Link>
                   </div>
