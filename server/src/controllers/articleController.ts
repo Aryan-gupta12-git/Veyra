@@ -68,61 +68,39 @@ export const getPublicArticleById = async (req: AuthRequest, res: Response): Pro
   try {
     const id = String(req.params.id);
 
-    const initialArticle = await prisma.article.findFirst({
+    const article = await prisma.article.findFirst({
       where: {
         OR: [{ id }, { slug: id }],
         published: true,
       },
-      select: { id: true },
+      include: {
+        author: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            role: true,
+          },
+        },
+        topic: true,
+      },
     });
 
-    if (!initialArticle) {
+    if (!article) {
       res.status(404).json({ error: 'Article not found or unavailable' });
       return;
     }
 
     const skipView = req.query.skipView === 'true' || req.user?.role === 'ADMIN';
 
-    let article;
-    if (skipView) {
-      article = await prisma.article.findUnique({
-        where: { id: initialArticle.id },
-        include: {
-          author: {
-            select: {
-              id: true,
-              name: true,
-              email: true,
-              role: true,
-            },
-          },
-          topic: true,
-        },
-      });
-    } else {
-      // Atomically increment views count in PostgreSQL
-      article = await prisma.article.update({
-        where: { id: initialArticle.id },
-        data: {
-          views: { increment: 1 },
-        },
-        include: {
-          author: {
-            select: {
-              id: true,
-              name: true,
-              email: true,
-              role: true,
-            },
-          },
-          topic: true,
-        },
-      });
-    }
-
-    if (!article) {
-      res.status(404).json({ error: 'Article not found or unavailable' });
-      return;
+    // Increment view count asynchronously in background without blocking response
+    if (!skipView) {
+      prisma.article
+        .update({
+          where: { id: article.id },
+          data: { views: { increment: 1 } },
+        })
+        .catch((err) => console.error('Failed to increment article view:', err));
     }
 
     let hasLiked = false;

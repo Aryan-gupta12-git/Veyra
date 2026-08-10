@@ -53,19 +53,22 @@ export const ArticlePage: React.FC = () => {
       setArticle(data);
       setHasLiked(Boolean(data.hasLiked));
       setLikeCount(data.likes || 0);
+      setLoading(false);
 
-      // Fetch other articles by the same author
+      // Fetch other articles by the same author in background asynchronously
       const authorName = data.authorName || data.author?.name || 'Aryan Gupta';
-      const allArticles = await fetchPublicArticles('all');
-      const filtered = allArticles.filter((a) => {
-        const aAuthor = a.authorName || a.author?.name || 'Aryan Gupta';
-        return aAuthor.toLowerCase() === authorName.toLowerCase() && a.id !== data.id && a.slug !== data.slug;
-      });
-      setAuthorArticles(filtered.slice(0, 3));
+      fetchPublicArticles('all')
+        .then((allArticles) => {
+          const filtered = allArticles.filter((a) => {
+            const aAuthor = a.authorName || a.author?.name || 'Aryan Gupta';
+            return aAuthor.toLowerCase() === authorName.toLowerCase() && a.id !== data.id && a.slug !== data.slug;
+          });
+          setAuthorArticles(filtered.slice(0, 3));
+        })
+        .catch(() => {});
     } catch (err: any) {
       console.error('Error fetching article:', err);
       setError(err.message || 'Failed to load article');
-    } finally {
       setLoading(false);
     }
   };
