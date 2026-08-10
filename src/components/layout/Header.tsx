@@ -27,7 +27,6 @@ export const Header: React.FC<HeaderProps> = ({
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const [internalQuery, setInternalQuery] = useState('');
-  const [showTripleTapToast, setShowTripleTapToast] = useState(false);
 
   const { user, logout, isAdmin } = useAuth();
   const searchInputRef = useRef<HTMLInputElement>(null);
@@ -106,10 +105,6 @@ export const Header: React.FC<HeaderProps> = ({
     if (tapCount.current >= 3) {
       tapCount.current = 0;
       setIsSearchOpen(true);
-      setShowTripleTapToast(true);
-      setTimeout(() => {
-        setShowTripleTapToast(false);
-      }, 2200);
 
       setTimeout(() => {
         searchInputRef.current?.focus();
@@ -133,14 +128,6 @@ export const Header: React.FC<HeaderProps> = ({
         isScrolled ? 'border-border/80 shadow-xs' : 'border-border/40'
       }`}
     >
-      {/* Triple Tap Quick Toast Notification */}
-      {showTripleTapToast && (
-        <div className="absolute top-18 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-full bg-surface/60 border border-border/60 shadow-md backdrop-blur-xl text-xs font-medium text-ink flex items-center gap-2 animate-fade-in pointer-events-none select-none">
-          <Search className="w-3.5 h-3.5 text-muted shrink-0" />
-          <span className="tracking-tight">Search activated</span>
-        </div>
-      )}
-
       {/* Responsive Header: Grid on desktop, Flex on Mobile */}
       <div className="w-full px-3 sm:px-10 h-16 flex sm:grid sm:grid-cols-3 items-center justify-between font-sans gap-2 sm:gap-0">
         {/* Left Column: Clean Brand */}
