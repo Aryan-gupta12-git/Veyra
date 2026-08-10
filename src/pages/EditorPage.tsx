@@ -343,7 +343,7 @@ export const EditorPage: React.FC = () => {
                 ref={textareaRef}
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
-                placeholder="Write your article here..."
+                placeholder="Write or paste HTML article content here... (e.g. <h2>Title</h2><p>Paragraph...</p>)"
                 rows={18}
                 className="w-full font-sans text-base sm:text-lg leading-[1.85] text-ink bg-transparent border-none focus:outline-none resize-y placeholder:text-muted/60"
               />

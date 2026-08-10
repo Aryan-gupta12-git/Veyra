@@ -227,10 +227,25 @@ export const ArticlePage: React.FC = () => {
             </header>
 
             {/* Article Content */}
-            <div
-              className="veyra-reader-content prose dark:prose-invert max-w-none text-ink font-serif leading-relaxed"
-              dangerouslySetInnerHTML={{ __html: article.content }}
-            />
+            {(() => {
+              const hasHtmlTags = /<[a-z][\s\S]*>/i.test(article.content);
+              if (hasHtmlTags) {
+                return (
+                  <div
+                    className="veyra-reader-content prose dark:prose-invert max-w-none text-ink font-serif leading-relaxed"
+                    dangerouslySetInnerHTML={{ __html: article.content }}
+                  />
+                );
+              }
+              const paragraphs = article.content.split(/\n\s*\n/);
+              return (
+                <div className="veyra-reader-content prose dark:prose-invert max-w-none text-ink font-serif leading-relaxed">
+                  {paragraphs.map((pText, idx) => (
+                    <p key={idx}>{pText.trim()}</p>
+                  ))}
+                </div>
+              );
+            })()}
 
             {/* "More Articles by Author" Section */}
             {authorArticles.length > 0 && (
