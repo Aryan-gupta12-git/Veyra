@@ -146,7 +146,10 @@ export function applyDomHighlight(
 
         mark.addEventListener('click', (e) => {
           e.stopPropagation();
-          const rect = mark.getBoundingClientRect();
+          const clientRects = Array.from(mark.getClientRects()).filter(
+            (r) => r.width > 0 && r.height > 0
+          );
+          const rect = clientRects[0] || mark.getBoundingClientRect();
           onSelectHighlight(highlight, rect);
         });
       }

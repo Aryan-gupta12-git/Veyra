@@ -85,7 +85,10 @@ export const ArticleHighlightManager: React.FC<ArticleHighlightManagerProps> = (
 
       const contextBefore = fullText.slice(Math.max(0, startOffset - 30), startOffset);
       const contextAfter = fullText.slice(endOffset, Math.min(fullText.length, endOffset + 30));
-      const rect = range.getBoundingClientRect();
+      const clientRects = Array.from(range.getClientRects()).filter(
+        (r) => r.width > 0 && r.height > 0
+      );
+      const rect = clientRects[0] || range.getBoundingClientRect();
 
       setActiveHighlightPopover(null);
       setPendingSelection({

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import ReactDOM from 'react-dom';
 import { Highlighter, Copy, Check, Trash2, LogIn } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Highlight } from '../../types/highlight';
@@ -32,21 +33,37 @@ function computePillPosition(
   approxWidth: number = 84
 ): React.CSSProperties {
   const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1200;
-  const gap = 8; // Small gap of 6–10px between text and action pill
+  const buttonHeight = 28;
+  const gap = 8; // 8px spacing directly above selection
   const minEdgePadding = 12; // Keep pill inside viewport
 
-  // Calculate centered horizontal position over selected range
+  // Calculate centered horizontal position over first visible line of selection
   const selectionCenterX = rect.left + rect.width / 2;
   const clampedLeft = Math.max(
     approxWidth / 2 + minEdgePadding,
     Math.min(viewportWidth - approxWidth / 2 - minEdgePadding, selectionCenterX)
   );
 
-  // Check if there is enough space above the selection (header / screen top offset)
-  const isTooCloseToTop = rect.top < 44;
+  console.log('[HIGHLIGHT POPOVER RECT]', {
+    selectionRect: {
+      top: rect.top,
+      left: rect.left,
+      right: rect.right,
+      bottom: rect.bottom,
+      width: rect.width,
+      height: rect.height,
+    },
+    buttonDimensions: { width: approxWidth, height: buttonHeight },
+    scroll: { x: window.scrollX, y: window.scrollY },
+    coordinateSystem: 'position: fixed via React Portal to document.body',
+  });
+
+  // Check if there is enough space above the selection (top viewport boundary)
+  const spaceAbove = rect.top;
+  const isTooCloseToTop = spaceAbove < buttonHeight + gap + 8;
 
   if (!isTooCloseToTop) {
-    // Position centered directly ABOVE selected text with 8px gap
+    // Position centered directly 8px ABOVE selection line using pure fixed viewport coordinates
     return {
       position: 'fixed',
       top: `${rect.top - gap}px`,
@@ -55,7 +72,7 @@ function computePillPosition(
     };
   }
 
-  // Fallback: Position centered directly BELOW selected text with 8px gap
+  // Fallback: Position centered directly 8px BELOW selection line if near top edge
   return {
     position: 'fixed',
     top: `${rect.bottom + gap}px`,
@@ -82,7 +99,7 @@ export const HighlightPopover: React.FC<HighlightPopoverProps> = ({
     setTimeout(() => setCopiedText(false), 1500);
   };
 
-  return (
+  const content = (
     <>
       {/* Floating icon action toolbar centered directly ABOVE newly selected text */}
       {pendingSelection && (
@@ -171,6 +188,8 @@ export const HighlightPopover: React.FC<HighlightPopoverProps> = ({
       )}
     </>
   );
+
+  return ReactDOM.createPortal(content, document.body);
 };
 
 export default HighlightPopover;
