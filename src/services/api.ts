@@ -71,6 +71,14 @@ export function getHasCachedArticles(): boolean {
   return articlesCache !== null && articlesCache.length > 0;
 }
 
+export function getCachedArticles(): Article[] | null {
+  return articlesCache;
+}
+
+export function getCachedTopics(): Topic[] | null {
+  return topicsCache;
+}
+
 export function clearArticlesCache(): void {
   articlesCache = null;
   articlesCacheTimestamp = 0;

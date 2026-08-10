@@ -6,6 +6,7 @@ import { useAuth } from '../context/AuthContext';
 import Header from '../components/layout/Header';
 import Footer from '../components/layout/Footer';
 import ArticleCard from '../components/article/ArticleCard';
+import ArticleCardSkeleton from '../components/skeleton/ArticleCardSkeleton';
 import { ArrowLeft } from 'lucide-react';
 
 export const LikedArticlesPage: React.FC = () => {
@@ -80,10 +81,8 @@ export const LikedArticlesPage: React.FC = () => {
 
         {/* Uniform Article Grid */}
         {loading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 animate-pulse py-6">
-            {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="h-64 bg-border/20 rounded-xl p-6 space-y-4" />
-            ))}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 py-6 items-stretch">
+            <ArticleCardSkeleton count={8} />
           </div>
         ) : error ? (
           <div className="py-12 text-center border border-border/50 rounded-xl p-8 bg-surface/50 max-w-lg mx-auto">
