@@ -137,10 +137,10 @@ export const MemoryFeedPage: React.FC = () => {
                   <button
                     type="button"
                     onClick={(e) => handleDeleteMemory(e, item.id)}
-                    className="p-1 rounded-md text-ink/40 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-500/10 transition-all opacity-0 group-hover:opacity-100 cursor-pointer shrink-0"
+                    className="text-ink/40 hover:text-red-600 dark:hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100 cursor-pointer shrink-0"
                     title="Delete Memory"
                   >
-                    <Trash2 className="w-3.5 h-3.5" />
+                    <Trash2 className="w-4 h-4" />
                   </button>
                 </div>
 
