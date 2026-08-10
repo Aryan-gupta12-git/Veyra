@@ -410,33 +410,33 @@ blockquote,
 
 /* Kindle-Style Personal Highlight Styling */
 .veyra-highlight {
-  background-color: #F5E6AD;
-  color: #25221F;
+  background-color: #FBEA95;
+  color: #1A1816;
   border-radius: 2px;
   padding: 1px 0;
-  box-shadow: 0 0 0 1px rgba(220, 195, 125, 0.4);
+  box-shadow: 0 0 0 1px #E5D275;
   transition: background-color 150ms ease, box-shadow 150ms ease;
   text-decoration: none;
 }
 
 .veyra-highlight:hover {
-  background-color: #EBD691;
-  box-shadow: 0 0 0 1px rgba(200, 175, 105, 0.6);
+  background-color: #F5E07B;
+  box-shadow: 0 0 0 1px #D9C35F;
 }
 
 .dark .veyra-highlight {
-  background-color: #4A4025;
-  color: #F3F3F3;
-  box-shadow: 0 0 0 1px rgba(140, 120, 60, 0.4);
+  background-color: #59471A;
+  color: #FFF8E7;
+  box-shadow: 0 0 0 1px #8C702B;
 }
 
 .dark .veyra-highlight:hover {
-  background-color: #5C4F2E;
-  box-shadow: 0 0 0 1px rgba(160, 140, 70, 0.6);
+  background-color: #6E5820;
+  box-shadow: 0 0 0 1px #A38435;
 }
 
 .theme-studio .veyra-highlight {
-  background-color: #E6D8A6;
+  background-color: #FBEA95;
   color: #141414;
   box-shadow: 0 0 0 1px #141414;
 }

@@ -12,6 +12,32 @@ import HeartLikeButton from '../components/ui/HeartLikeButton';
 import ArticleHighlightManager from '../components/article/ArticleHighlightManager';
 import { ArrowLeft, Share2, Check, Edit3, Heart } from 'lucide-react';
 
+const ArticleContentBody = React.memo<{ content: string; contentRef: React.RefObject<HTMLDivElement | null> }>(
+  ({ content, contentRef }) => {
+    const hasHtmlTags = /<[a-z][\s\S]*>/i.test(content);
+    if (hasHtmlTags) {
+      return (
+        <div
+          ref={contentRef}
+          className="veyra-reader-content prose dark:prose-invert max-w-none text-ink font-serif leading-relaxed"
+          dangerouslySetInnerHTML={{ __html: content }}
+        />
+      );
+    }
+    const paragraphs = content.split(/\n\s*\n/);
+    return (
+      <div
+        ref={contentRef}
+        className="veyra-reader-content prose dark:prose-invert max-w-none text-ink font-serif leading-relaxed"
+      >
+        {paragraphs.map((pText, idx) => (
+          <p key={idx}>{pText.trim()}</p>
+        ))}
+      </div>
+    );
+  }
+);
+
 export const ArticlePage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -352,29 +378,7 @@ export const ArticlePage: React.FC = () => {
             </header>
 
             {/* Article Content */}
-            {(() => {
-              const hasHtmlTags = /<[a-z][\s\S]*>/i.test(article.content);
-              if (hasHtmlTags) {
-                return (
-                  <div
-                    ref={contentRef}
-                    className="veyra-reader-content prose dark:prose-invert max-w-none text-ink font-serif leading-relaxed"
-                    dangerouslySetInnerHTML={{ __html: article.content }}
-                  />
-                );
-              }
-              const paragraphs = article.content.split(/\n\s*\n/);
-              return (
-                <div
-                  ref={contentRef}
-                  className="veyra-reader-content prose dark:prose-invert max-w-none text-ink font-serif leading-relaxed"
-                >
-                  {paragraphs.map((pText, idx) => (
-                    <p key={idx}>{pText.trim()}</p>
-                  ))}
-                </div>
-              );
-            })()}
+            <ArticleContentBody content={article.content} contentRef={contentRef} />
 
             {/* Private Kindle-Style Personal Highlight Layer */}
             <ArticleHighlightManager articleId={article.id} contentRef={contentRef} />

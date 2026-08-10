@@ -95,6 +95,12 @@ export const createArticleHighlight = async (req: AuthRequest, res: Response): P
       return;
     }
 
+    console.log('[HIGHLIGHT POST]', {
+      userId,
+      articleId: article.id,
+      selectedTextLength: selectedText.trim().length,
+    });
+
     // Check for existing duplicate highlight for exact same range
     const existing = await prisma.highlight.findFirst({
       where: {
@@ -107,6 +113,7 @@ export const createArticleHighlight = async (req: AuthRequest, res: Response): P
     });
 
     if (existing) {
+      console.log('[HIGHLIGHT SAVED (EXISTING)]', existing.id);
       res.status(200).json({ highlight: existing });
       return;
     }
@@ -122,6 +129,8 @@ export const createArticleHighlight = async (req: AuthRequest, res: Response): P
         contextAfter: contextAfter || null,
       },
     });
+
+    console.log('[HIGHLIGHT SAVED]', highlight.id);
 
     res.status(201).json({ highlight });
   } catch (err: any) {
