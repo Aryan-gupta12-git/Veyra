@@ -129,22 +129,34 @@ export async function fetchPublicArticles(topicSlug?: string, userId?: string, f
   if (!forceRefresh && articlesCache && now - articlesCacheTimestamp < CACHE_TTL_MS) {
     let filtered = [...articlesCache];
     if (topicSlug && topicSlug !== 'all' && topicSlug !== 'for-you') {
-      filtered = filtered.filter((a) => a.topic?.slug === topicSlug || a.category?.toLowerCase() === topicSlug.toLowerCase());
+      const targetLower = topicSlug.toLowerCase();
+      filtered = filtered.filter((a) => 
+        a.topicId === topicSlug ||
+        a.topic?.id === topicSlug ||
+        (a.topic?.slug && a.topic.slug.toLowerCase() === targetLower) ||
+        (a.topic?.name && a.topic.name.toLowerCase() === targetLower) ||
+        (a.category && a.category.toLowerCase() === targetLower)
+      );
     }
     return filtered;
   }
 
   try {
     const url = new URL('/api/articles', window.location.origin);
-    if (topicSlug) url.searchParams.append('topic', topicSlug);
+    if (topicSlug && topicSlug !== 'all' && topicSlug !== 'for-you') {
+      url.searchParams.append('topic', topicSlug);
+    }
     if (userId) url.searchParams.append('userId', userId);
 
     const res = await fetch(url.toString(), { credentials: 'include' });
     if (res.ok) {
       const data = await res.json();
-      if (data.articles && data.articles.length > 0) {
-        articlesCache = data.articles;
-        articlesCacheTimestamp = now;
+      if (data.articles) {
+        // If fetching all, update cache with complete article list
+        if (!topicSlug || topicSlug === 'all' || topicSlug === 'for-you') {
+          articlesCache = data.articles;
+          articlesCacheTimestamp = now;
+        }
         return data.articles;
       }
     }
@@ -153,12 +165,30 @@ export async function fetchPublicArticles(topicSlug?: string, userId?: string, f
   }
 
   if (articlesCache) {
-    return articlesCache;
+    let filtered = [...articlesCache];
+    if (topicSlug && topicSlug !== 'all' && topicSlug !== 'for-you') {
+      const targetLower = topicSlug.toLowerCase();
+      filtered = filtered.filter((a) => 
+        a.topicId === topicSlug ||
+        a.topic?.id === topicSlug ||
+        (a.topic?.slug && a.topic.slug.toLowerCase() === targetLower) ||
+        (a.topic?.name && a.topic.name.toLowerCase() === targetLower) ||
+        (a.category && a.category.toLowerCase() === targetLower)
+      );
+    }
+    return filtered;
   }
 
   let filtered = [...FALLBACK_ARTICLES];
   if (topicSlug && topicSlug !== 'all' && topicSlug !== 'for-you') {
-    filtered = filtered.filter((a) => a.topic?.slug === topicSlug || a.category?.toLowerCase() === topicSlug.toLowerCase());
+    const targetLower = topicSlug.toLowerCase();
+    filtered = filtered.filter((a) => 
+      a.topicId === topicSlug ||
+      a.topic?.id === topicSlug ||
+      (a.topic?.slug && a.topic.slug.toLowerCase() === targetLower) ||
+      (a.topic?.name && a.topic.name.toLowerCase() === targetLower) ||
+      (a.category && a.category.toLowerCase() === targetLower)
+    );
   }
 
   return filtered;
