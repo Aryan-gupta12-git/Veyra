@@ -47,16 +47,20 @@ export const createKnowledgeItem = async (req: AuthRequest, res: Response): Prom
       return;
     }
 
-    // Create Knowledge Item
-    const knowledgeItem = await prisma.knowledgeItem.create({
-      data: {
+    console.log('[KNOWLEDGE POST]', {
+      userId,
+      articleId: article.id,
+      selectedTextLength: selectedText.trim().length,
+    });
+
+    // Check for existing duplicate knowledge item for exact same range
+    const existingKnowledge = await prisma.knowledgeItem.findFirst({
+      where: {
         userId,
         articleId: article.id,
-        selectedText: selectedText.trim(),
         startOffset,
         endOffset,
-        contextBefore: contextBefore || null,
-        contextAfter: contextAfter || null,
+        selectedText: selectedText.trim(),
       },
     });
 
@@ -84,10 +88,31 @@ export const createKnowledgeItem = async (req: AuthRequest, res: Response): Prom
       });
     }
 
+    if (existingKnowledge) {
+      console.log('[KNOWLEDGE SAVED (EXISTING)]', existingKnowledge.id);
+      res.status(200).json({ knowledgeItem: existingKnowledge, highlight });
+      return;
+    }
+
+    // Create Knowledge Item
+    const knowledgeItem = await prisma.knowledgeItem.create({
+      data: {
+        userId,
+        articleId: article.id,
+        selectedText: selectedText.trim(),
+        startOffset,
+        endOffset,
+        contextBefore: contextBefore || null,
+        contextAfter: contextAfter || null,
+      },
+    });
+
+    console.log('[KNOWLEDGE SAVED]', knowledgeItem.id);
+
     res.status(201).json({ knowledgeItem, highlight });
   } catch (err: any) {
     console.error('Error creating Knowledge Item:', err);
-    res.status(500).json({ error: 'Failed to save to Knowledge' });
+    res.status(500).json({ error: err.message || 'Failed to save to Knowledge' });
   }
 };
 
