@@ -250,9 +250,9 @@ export const Header: React.FC<HeaderProps> = ({
                         setProfileMenuOpen(false);
                         logout();
                       }}
-                      className="w-full text-left flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium text-red-600 dark:text-red-400 hover:bg-red-500/10 transition-colors cursor-pointer"
+                      className="w-full text-left flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium text-muted hover:text-red-700 dark:hover:text-red-400 transition-colors cursor-pointer group"
                     >
-                      <LogOut className="w-4 h-4 text-red-500 shrink-0" />
+                      <LogOut className="w-4 h-4 text-muted group-hover:text-red-700 dark:group-hover:text-red-400 shrink-0 transition-colors" />
                       <span>Sign Out</span>
                     </button>
                   </div>
