@@ -58,21 +58,15 @@ export const AdminPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-paper text-ink font-sans flex flex-col transition-colors duration-200">
-      <Header />
+      <Header pageTitle="Articles" hideThemeToggle={true} />
 
-      <main className="flex-1 min-h-[calc(100vh-4rem)] max-w-[1440px] mx-auto px-6 sm:px-8 pt-8 sm:pt-10 pb-16 w-full flex flex-col">
-        {/* Page Top Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-10 pb-6 border-b border-border/60">
-          <div>
-            <h1 className="font-serif text-3xl sm:text-4xl font-normal text-ink">
-              Workspace
-            </h1>
-          </div>
-
+      <main className="flex-1 min-h-[calc(100vh-4rem)] max-w-[1440px] mx-auto px-6 sm:px-8 pt-6 sm:pt-8 pb-16 w-full flex flex-col">
+        {/* Page Top Bar */}
+        <div className="flex items-center justify-end mb-6">
           {isAdmin && (
             <Link
               to="/admin/editor/new"
-              className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-ink text-paper text-xs font-semibold rounded-xl hover:opacity-90 transition-opacity shadow-xs shrink-0"
+              className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-ink text-paper text-xs font-semibold rounded-xl hover:opacity-90 transition-opacity shadow-xs shrink-0 cursor-pointer"
             >
               <Plus className="w-4 h-4" />
               <span>Create New Article</span>
