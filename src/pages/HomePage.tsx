@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { Article } from '../types/article';
 import { Topic } from '../types/user';
 import { fetchPublicArticles, fetchTopics, getHasCachedArticles, getCachedArticles, getCachedTopics } from '../services/api';
+import { useArticleStore } from '../store/useArticleStore';
 import { useAuth } from '../context/AuthContext';
 import Header from '../components/layout/Header';
 import Footer from '../components/layout/Footer';
@@ -57,6 +58,7 @@ export const HomePage: React.FC = () => {
       ]);
       setArticles(articlesData);
       setTopics(topicsData);
+      useArticleStore.getState().setCachedArticles(articlesData);
     } catch (err: any) {
       console.error('Error loading homepage data:', err);
       setError(err.message || 'Failed to load articles');

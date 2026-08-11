@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Article } from '../../types/article';
 import { formatRelativeTime } from '../../utils/relativeTime';
+import { useArticleStore } from '../../store/useArticleStore';
 
 interface ArticleCardProps {
   article: Article;
@@ -11,10 +12,22 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({ article }) => {
   const relativeTime = formatRelativeTime(article.createdAt);
   const authorDisplayName = article.authorName || article.author?.name || 'Aryan Gupta';
 
+  const handlePrefetch = () => {
+    const target = article.slug || article.id;
+    if (target) {
+      useArticleStore.getState().prefetchArticle(target);
+    }
+  };
+
   return (
-    <article className="group flex flex-col justify-between h-full min-h-[250px] border border-border/90 bg-surface/50 hover:bg-surface hover:border-ink hover:shadow-md hover:-translate-y-1 rounded-xl p-6 sm:p-7 transition-all duration-300 ease-out cursor-pointer">
+    <article
+      onMouseEnter={handlePrefetch}
+      onTouchStart={handlePrefetch}
+      className="group flex flex-col justify-between h-full min-h-[250px] border border-border/90 bg-surface/50 hover:bg-surface hover:border-ink hover:shadow-md hover:-translate-y-1 rounded-xl p-6 sm:p-7 transition-all duration-300 ease-out cursor-pointer"
+    >
       <Link
         to={`/article/${article.slug || article.id}`}
+        onFocus={handlePrefetch}
         className="flex-1 flex flex-col justify-between focus:outline-none"
       >
         <div className="flex-1 flex flex-col">

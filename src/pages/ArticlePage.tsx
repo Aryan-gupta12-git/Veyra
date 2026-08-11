@@ -1,7 +1,8 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Article } from '../types/article';
-import { fetchArticleByIdOrSlug, fetchPublicArticles, toggleLikeArticle } from '../services/api';
+import { toggleLikeArticle } from '../services/api';
+import { useArticleStore } from '../store/useArticleStore';
 import { useAuth } from '../context/AuthContext';
 import { formatRelativeTime } from '../utils/relativeTime';
 import Header from '../components/layout/Header';
@@ -57,9 +58,70 @@ export const ArticlePage: React.FC = () => {
 
   const contentRef = useRef<HTMLDivElement>(null);
 
+  // Phase 1: Essential Article Loading (BLOCKING)
   useEffect(() => {
-    loadArticle();
+    if (!id) return;
+
+    let isMounted = true;
+    const store = useArticleStore.getState();
+    const cached = store.getArticleFromCache(id);
+
+    // Instant render if cached with full body
+    if (cached && cached.content && cached.content.length > 0) {
+      setArticle(cached);
+      setHasLiked(cached.hasLiked || false);
+      setLikeCount(cached.likes || 0);
+      setLoading(false);
+      setError(null);
+    } else {
+      setLoading(true);
+      setError(null);
+    }
+
+    // Fetch essential article data (single lightweight network call if un-cached)
+    store
+      .fetchArticle(id)
+      .then((data) => {
+        if (!isMounted) return;
+        setArticle(data);
+        setHasLiked(data.hasLiked || false);
+        setLikeCount(data.likes || 0);
+        setError(null);
+      })
+      .catch((err: any) => {
+        if (!isMounted) return;
+        console.error('Error loading article:', err);
+        setError(err.message || 'Failed to load article');
+      })
+      .finally(() => {
+        if (isMounted) setLoading(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
   }, [id]);
+
+  // Phase 2: Secondary Author Recommendations (NON-BLOCKING BACKGROUND)
+  useEffect(() => {
+    if (!article) return;
+    let isMounted = true;
+
+    const authorId = article.authorId;
+    const authorName = article.authorName || article.author?.name;
+
+    useArticleStore
+      .getState()
+      .fetchAuthorArticles(authorId, authorName, article.id)
+      .then((list) => {
+        if (isMounted) setAuthorArticles(list);
+      })
+      .catch(() => {});
+
+    return () => {
+      isMounted = false;
+    };
+  }, [article?.id, article?.authorId, article?.authorName]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -107,32 +169,6 @@ export const ArticlePage: React.FC = () => {
     }
   }, [article, loading]);
 
-  const loadArticle = async () => {
-    if (!id) return;
-    try {
-      setLoading(true);
-      setError(null);
-      const data = await fetchArticleByIdOrSlug(id);
-      setArticle(data);
-      setHasLiked(data.hasLiked || false);
-      setLikeCount(data.likes || 0);
-
-      // Fetch author articles
-      if (data.authorId || data.authorName) {
-        const allArticles = await fetchPublicArticles('all');
-        const filtered = allArticles
-          .filter((a) => a.id !== data.id && (a.authorId === data.authorId || a.authorName === data.authorName))
-          .slice(0, 3);
-        setAuthorArticles(filtered);
-      }
-    } catch (err: any) {
-      console.error('Error loading article:', err);
-      setError(err.message || 'Failed to load article');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleToggleLike = async () => {
     if (!article || isAdmin) return;
     if (!user) {
@@ -150,6 +186,7 @@ export const ArticlePage: React.FC = () => {
     setHasLiked(nextLiked);
     setLikeCount(nextCount);
     setArticle((prev) => (prev ? { ...prev, likes: nextCount, hasLiked: nextLiked } : null));
+    useArticleStore.getState().updateArticleLikeState(article.id, nextCount, nextLiked);
 
     // Background HTTP Server Sync
     try {
@@ -157,12 +194,14 @@ export const ArticlePage: React.FC = () => {
       setHasLiked(res.liked);
       setLikeCount(res.likes);
       setArticle((prev) => (prev ? { ...prev, likes: res.likes, hasLiked: res.liked } : null));
+      useArticleStore.getState().updateArticleLikeState(article.id, res.likes, res.liked);
     } catch (err: any) {
       console.error('Error toggling like:', err);
       // Rollback on network failure
       setHasLiked(prevLiked);
       setLikeCount(prevCount);
       setArticle((prev) => (prev ? { ...prev, likes: prevCount, hasLiked: prevLiked } : null));
+      useArticleStore.getState().updateArticleLikeState(article.id, prevCount, prevLiked);
       alert(err.message || 'Failed to toggle like');
     }
   };
@@ -196,6 +235,7 @@ export const ArticlePage: React.FC = () => {
     setHasLiked(true);
     setLikeCount(nextCount);
     setArticle((prev) => (prev ? { ...prev, likes: nextCount, hasLiked: true } : null));
+    useArticleStore.getState().updateArticleLikeState(article.id, nextCount, true);
 
     // Background HTTP Server Sync
     try {
@@ -203,12 +243,14 @@ export const ArticlePage: React.FC = () => {
       setHasLiked(res.liked);
       setLikeCount(res.likes);
       setArticle((prev) => (prev ? { ...prev, likes: res.likes, hasLiked: res.liked } : null));
+      useArticleStore.getState().updateArticleLikeState(article.id, res.likes, res.liked);
     } catch (err: any) {
       console.error('Error toggling like on double-tap:', err);
       // Rollback on network failure
       setHasLiked(prevLiked);
       setLikeCount(prevCount);
       setArticle((prev) => (prev ? { ...prev, likes: prevCount, hasLiked: prevLiked } : null));
+      useArticleStore.getState().updateArticleLikeState(article.id, prevCount, prevLiked);
       alert(err.message || 'Failed to toggle like');
     }
   };

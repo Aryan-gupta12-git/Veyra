@@ -11,8 +11,25 @@ export const getPublicArticles = async (req: Request, res: Response): Promise<vo
   try {
     const topicSlug = req.query.topic ? String(req.query.topic) : undefined;
     const userId = req.query.userId ? String(req.query.userId) : undefined;
+    const authorId = req.query.authorId ? String(req.query.authorId) : undefined;
+    const authorName = req.query.authorName ? String(req.query.authorName) : undefined;
+    const excludeId = req.query.excludeId ? String(req.query.excludeId) : undefined;
+    const limit = req.query.limit ? parseInt(String(req.query.limit), 10) : undefined;
 
     let whereClause: any = { published: true };
+
+    if (excludeId) {
+      whereClause.id = { not: excludeId };
+    }
+
+    if (authorId) {
+      whereClause.authorId = authorId;
+    } else if (authorName) {
+      whereClause.OR = [
+        { authorName: { equals: authorName, mode: 'insensitive' } },
+        { author: { name: { equals: authorName, mode: 'insensitive' } } },
+      ];
+    }
 
     if (topicSlug && topicSlug !== 'for-you' && topicSlug !== 'all') {
       const topic = await prisma.topic.findUnique({ where: { slug: topicSlug } });
@@ -24,6 +41,7 @@ export const getPublicArticles = async (req: Request, res: Response): Promise<vo
     const articles = await prisma.article.findMany({
       where: whereClause,
       orderBy: { createdAt: 'desc' },
+      take: limit && !isNaN(limit) ? limit : undefined,
       include: {
         author: {
           select: {
@@ -37,8 +55,8 @@ export const getPublicArticles = async (req: Request, res: Response): Promise<vo
       },
     });
 
-    // If userId provided, prioritize articles matching user's interests
-    if (userId && (!topicSlug || topicSlug === 'for-you')) {
+    // If userId provided and no specific author/topic, prioritize articles matching user's interests
+    if (userId && (!topicSlug || topicSlug === 'for-you') && !authorId && !authorName) {
       const userInterests = await prisma.userInterest.findMany({
         where: { userId },
         select: { topicId: true },

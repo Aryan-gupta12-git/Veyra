@@ -131,20 +131,56 @@ export async function saveUserInterests(topicIds: string[]): Promise<User> {
   return data.user;
 }
 
-export async function fetchPublicArticles(topicSlug?: string, userId?: string, forceRefresh = false): Promise<Article[]> {
+export interface FetchArticlesOptions {
+  topicSlug?: string;
+  userId?: string;
+  authorId?: string;
+  authorName?: string;
+  excludeId?: string;
+  limit?: number;
+  forceRefresh?: boolean;
+}
+
+export async function fetchPublicArticles(
+  topicSlugOrOptions?: string | FetchArticlesOptions,
+  userId?: string,
+  forceRefresh = false
+): Promise<Article[]> {
+  let options: FetchArticlesOptions = {};
+
+  if (typeof topicSlugOrOptions === 'object' && topicSlugOrOptions !== null) {
+    options = topicSlugOrOptions;
+  } else {
+    options = {
+      topicSlug: topicSlugOrOptions,
+      userId,
+      forceRefresh,
+    };
+  }
+
+  const { topicSlug, userId: optUserId, authorId, authorName, excludeId, limit, forceRefresh: optForceRefresh } = options;
   const now = Date.now();
 
-  if (!forceRefresh && articlesCache && now - articlesCacheTimestamp < CACHE_TTL_MS) {
+  const isGeneralFetch = !topicSlug || topicSlug === 'all' || topicSlug === 'for-you';
+  const isAuthorSpecificFetch = Boolean(authorId || authorName);
+
+  if (!optForceRefresh && !isAuthorSpecificFetch && articlesCache && now - articlesCacheTimestamp < CACHE_TTL_MS) {
     let filtered = [...articlesCache];
     if (topicSlug && topicSlug !== 'all' && topicSlug !== 'for-you') {
       const targetLower = topicSlug.toLowerCase();
-      filtered = filtered.filter((a) => 
+      filtered = filtered.filter((a) =>
         a.topicId === topicSlug ||
         a.topic?.id === topicSlug ||
         (a.topic?.slug && a.topic.slug.toLowerCase() === targetLower) ||
         (a.topic?.name && a.topic.name.toLowerCase() === targetLower) ||
         (a.category && a.category.toLowerCase() === targetLower)
       );
+    }
+    if (excludeId) {
+      filtered = filtered.filter((a) => a.id !== excludeId);
+    }
+    if (limit && limit > 0) {
+      filtered = filtered.slice(0, limit);
     }
     return filtered;
   }
@@ -154,14 +190,17 @@ export async function fetchPublicArticles(topicSlug?: string, userId?: string, f
     if (topicSlug && topicSlug !== 'all' && topicSlug !== 'for-you') {
       url.searchParams.append('topic', topicSlug);
     }
-    if (userId) url.searchParams.append('userId', userId);
+    if (optUserId) url.searchParams.append('userId', optUserId);
+    if (authorId) url.searchParams.append('authorId', authorId);
+    if (authorName) url.searchParams.append('authorName', authorName);
+    if (excludeId) url.searchParams.append('excludeId', excludeId);
+    if (limit) url.searchParams.append('limit', String(limit));
 
     const res = await fetch(url.toString(), { credentials: 'include' });
     if (res.ok) {
       const data = await res.json();
       if (data.articles) {
-        // If fetching all, update cache with complete article list
-        if (!topicSlug || topicSlug === 'all' || topicSlug === 'for-you') {
+        if (isGeneralFetch && !isAuthorSpecificFetch) {
           articlesCache = data.articles;
           articlesCacheTimestamp = now;
         }
@@ -176,7 +215,7 @@ export async function fetchPublicArticles(topicSlug?: string, userId?: string, f
     let filtered = [...articlesCache];
     if (topicSlug && topicSlug !== 'all' && topicSlug !== 'for-you') {
       const targetLower = topicSlug.toLowerCase();
-      filtered = filtered.filter((a) => 
+      filtered = filtered.filter((a) =>
         a.topicId === topicSlug ||
         a.topic?.id === topicSlug ||
         (a.topic?.slug && a.topic.slug.toLowerCase() === targetLower) ||
@@ -184,19 +223,43 @@ export async function fetchPublicArticles(topicSlug?: string, userId?: string, f
         (a.category && a.category.toLowerCase() === targetLower)
       );
     }
+    if (authorId || authorName) {
+      filtered = filtered.filter((a) =>
+        (authorId && a.authorId === authorId) ||
+        (authorName && (a.authorName?.toLowerCase() === authorName.toLowerCase() || a.author?.name?.toLowerCase() === authorName.toLowerCase()))
+      );
+    }
+    if (excludeId) {
+      filtered = filtered.filter((a) => a.id !== excludeId);
+    }
+    if (limit && limit > 0) {
+      filtered = filtered.slice(0, limit);
+    }
     return filtered;
   }
 
   let filtered = [...FALLBACK_ARTICLES];
   if (topicSlug && topicSlug !== 'all' && topicSlug !== 'for-you') {
     const targetLower = topicSlug.toLowerCase();
-    filtered = filtered.filter((a) => 
+    filtered = filtered.filter((a) =>
       a.topicId === topicSlug ||
       a.topic?.id === topicSlug ||
       (a.topic?.slug && a.topic.slug.toLowerCase() === targetLower) ||
       (a.topic?.name && a.topic.name.toLowerCase() === targetLower) ||
       (a.category && a.category.toLowerCase() === targetLower)
     );
+  }
+  if (authorId || authorName) {
+    filtered = filtered.filter((a) =>
+      (authorId && a.authorId === authorId) ||
+      (authorName && (a.authorName?.toLowerCase() === authorName.toLowerCase() || a.author?.name?.toLowerCase() === authorName.toLowerCase()))
+    );
+  }
+  if (excludeId) {
+    filtered = filtered.filter((a) => a.id !== excludeId);
+  }
+  if (limit && limit > 0) {
+    filtered = filtered.slice(0, limit);
   }
 
   return filtered;

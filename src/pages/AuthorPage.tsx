@@ -37,13 +37,7 @@ export const AuthorPage: React.FC = () => {
     try {
       setLoading(true);
       setError(null);
-      const allArticles = await fetchPublicArticles('all', user?.id);
-
-      // Filter articles matching authorName or author.name
-      const authorFiltered = allArticles.filter((art) => {
-        const artAuthor = art.authorName || art.author?.name || 'Aryan Gupta';
-        return artAuthor.toLowerCase() === decodedAuthorName.toLowerCase();
-      });
+      const authorFiltered = await fetchPublicArticles({ authorName: decodedAuthorName });
 
       setArticles(authorFiltered);
     } catch (err: any) {
