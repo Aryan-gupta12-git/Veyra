@@ -7,7 +7,7 @@ import { sanitizeHtml } from '../utils/sanitizeHtml.js';
 /**
  * Public: Get published articles (with topic filtering & interest prioritization)
  */
-export const getPublicArticles = async (req: Request, res: Response): Promise<void> => {
+export const getPublicArticles = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const topicSlug = req.query.topic ? String(req.query.topic) : undefined;
     const userId = req.query.userId ? String(req.query.userId) : undefined;
@@ -71,7 +71,23 @@ export const getPublicArticles = async (req: Request, res: Response): Promise<vo
       });
     }
 
-    res.json({ articles });
+    // Attach hasLiked status if user context is available
+    const activeUserId = req.user?.id || userId;
+    let userLikedSet = new Set<string>();
+    if (activeUserId) {
+      const userLikes = await prisma.articleLike.findMany({
+        where: { userId: activeUserId },
+        select: { articleId: true },
+      });
+      userLikedSet = new Set(userLikes.map((l) => l.articleId));
+    }
+
+    const articlesWithLikeStatus = articles.map((art) => ({
+      ...art,
+      hasLiked: userLikedSet.has(art.id),
+    }));
+
+    res.json({ articles: articlesWithLikeStatus });
   } catch (error: any) {
     console.error('Error fetching public articles:', error);
     res.status(500).json({ error: 'Failed to retrieve articles', details: error?.message });

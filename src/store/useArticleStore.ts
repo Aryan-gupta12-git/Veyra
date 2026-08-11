@@ -34,8 +34,15 @@ export const useArticleStore = create<ArticleState>((set, get) => ({
     set((state) => {
       const nextCache = new Map(state.articlesCache);
       articles.forEach((art) => {
-        if (art.id) nextCache.set(art.id, art);
-        if (art.slug) nextCache.set(art.slug, art);
+        const existing = (art.id ? nextCache.get(art.id) : undefined) || (art.slug ? nextCache.get(art.slug) : undefined);
+        const merged: Article = {
+          ...existing,
+          ...art,
+          content: art.content || (existing ? existing.content : ''),
+          hasLiked: art.hasLiked !== undefined ? art.hasLiked : (existing ? existing.hasLiked : undefined),
+        };
+        if (merged.id) nextCache.set(merged.id, merged);
+        if (merged.slug) nextCache.set(merged.slug, merged);
       });
       return { articlesCache: nextCache };
     });
@@ -46,8 +53,11 @@ export const useArticleStore = create<ArticleState>((set, get) => ({
 
     // 1. Check instant cache lookup
     const cached = articlesCache.get(idOrSlug);
-    if (cached && cached.content && cached.content.length > 0) {
-      return cached;
+    const hasFullContent = Boolean(cached && cached.content && cached.content.length > 0);
+    const hasLikeStatus = Boolean(cached && cached.hasLiked !== undefined);
+
+    if (hasFullContent && hasLikeStatus) {
+      return cached!;
     }
 
     // 2. Prevent duplicate parallel in-flight fetches for same article
@@ -55,7 +65,7 @@ export const useArticleStore = create<ArticleState>((set, get) => ({
       // Wait for pending fetch to populate cache
       await new Promise((resolve) => setTimeout(resolve, 100));
       const retryCache = get().articlesCache.get(idOrSlug);
-      if (retryCache && retryCache.content) return retryCache;
+      if (retryCache && retryCache.content && retryCache.hasLiked !== undefined) return retryCache;
     }
 
     set((state) => {
@@ -69,8 +79,11 @@ export const useArticleStore = create<ArticleState>((set, get) => ({
 
       set((state) => {
         const nextCache = new Map(state.articlesCache);
-        if (article.id) nextCache.set(article.id, article);
-        if (article.slug) nextCache.set(article.slug, article);
+        const existing = (article.id ? nextCache.get(article.id) : undefined) || (article.slug ? nextCache.get(article.slug) : undefined);
+        const merged = { ...existing, ...article };
+
+        if (merged.id) nextCache.set(merged.id, merged);
+        if (merged.slug) nextCache.set(merged.slug, merged);
 
         const nextPending = new Set(state.pendingFetches);
         nextPending.delete(idOrSlug);
@@ -95,7 +108,7 @@ export const useArticleStore = create<ArticleState>((set, get) => ({
 
     // If already fully cached or currently fetching, skip
     const cached = articlesCache.get(idOrSlug);
-    if ((cached && cached.content && cached.content.length > 0) || pendingFetches.has(idOrSlug)) {
+    if ((cached && cached.content && cached.content.length > 0 && cached.hasLiked !== undefined) || pendingFetches.has(idOrSlug)) {
       return;
     }
 
@@ -110,8 +123,11 @@ export const useArticleStore = create<ArticleState>((set, get) => ({
 
       set((state) => {
         const nextCache = new Map(state.articlesCache);
-        if (article.id) nextCache.set(article.id, article);
-        if (article.slug) nextCache.set(article.slug, article);
+        const existing = (article.id ? nextCache.get(article.id) : undefined) || (article.slug ? nextCache.get(article.slug) : undefined);
+        const merged = { ...existing, ...article };
+
+        if (merged.id) nextCache.set(merged.id, merged);
+        if (merged.slug) nextCache.set(merged.slug, merged);
 
         const nextPending = new Set(state.pendingFetches);
         nextPending.delete(idOrSlug);
