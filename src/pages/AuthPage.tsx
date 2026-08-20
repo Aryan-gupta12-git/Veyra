@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Header from '../components/layout/Header';
 import Footer from '../components/layout/Footer';
-import { ArrowRight, KeyRound, Mail, User as UserIcon } from 'lucide-react';
+import { ArrowRight, KeyRound, Mail, User as UserIcon, Loader2 } from 'lucide-react';
 
 interface AuthPageProps {
   isSignUp?: boolean;
@@ -19,7 +19,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ isSignUp = false }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // If already authenticated, redirect logged in users back to their feed/admin page
+  // Fallback redirect effect if state changes dynamically
   useEffect(() => {
     if (isAuthenticated && !authLoading) {
       navigate(isAdmin ? '/admin' : '/', { replace: true });
@@ -38,10 +38,10 @@ export const AuthPage: React.FC<AuthPageProps> = ({ isSignUp = false }) => {
       setError(null);
       if (isSignUp) {
         await signup(name, email, password);
-        navigate('/onboarding');
+        navigate('/onboarding', { replace: true });
       } else {
         await login(email, password);
-        navigate('/');
+        navigate('/', { replace: true });
       }
     } catch (err: any) {
       console.error('Authentication error:', err);
@@ -50,6 +50,19 @@ export const AuthPage: React.FC<AuthPageProps> = ({ isSignUp = false }) => {
       setLoading(false);
     }
   };
+
+  // Synchronous render-time guard: prevent flash of Login UI when authenticated or verifying auth session
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-paper text-ink flex items-center justify-center">
+        <Loader2 className="w-6 h-6 animate-spin text-muted" />
+      </div>
+    );
+  }
+
+  if (isAuthenticated) {
+    return <Navigate to={isAdmin ? '/admin' : '/'} replace />;
+  }
 
   return (
     <div className="min-h-screen bg-paper text-ink font-sans flex flex-col transition-colors duration-200">
