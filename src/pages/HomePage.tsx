@@ -13,10 +13,12 @@ import { Tag, ChevronDown, Check } from 'lucide-react';
 
 export const HomePage: React.FC = () => {
   const { user } = useAuth();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [articles, setArticles] = useState<Article[]>(() => getCachedArticles() || []);
   const [topics, setTopics] = useState<Topic[]>(() => getCachedTopics() || []);
-  const [selectedTopicId, setSelectedTopicId] = useState<string>('all');
+  const [selectedTopicId, setSelectedTopicId] = useState<string>(() => {
+    return searchParams.get('topic') || searchParams.get('category') || 'all';
+  });
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [loading, setLoading] = useState(() => !getHasCachedArticles());
   const [error, setError] = useState<string | null>(null);
@@ -27,6 +29,12 @@ export const HomePage: React.FC = () => {
     const qParam = searchParams.get('q') || searchParams.get('search');
     if (qParam) {
       setSearchQuery(qParam);
+    }
+    const topicParam = searchParams.get('topic') || searchParams.get('category');
+    if (topicParam) {
+      setSelectedTopicId(topicParam);
+    } else {
+      setSelectedTopicId('all');
     }
   }, [searchParams]);
 
@@ -67,15 +75,38 @@ export const HomePage: React.FC = () => {
     }
   };
 
-  const selectedTopic = topics.find((t) => t.id === selectedTopicId || t.slug === selectedTopicId);
+  const handleSelectTopic = (topicId: string, topicSlug?: string) => {
+    setSelectedTopicId(topicId);
+    setDropdownOpen(false);
+    const newParams = new URLSearchParams(searchParams);
+    if (topicId === 'all') {
+      newParams.delete('topic');
+      newParams.delete('category');
+    } else {
+      const slug = topicSlug || topics.find((t) => t.id === topicId)?.slug || topicId;
+      newParams.set('topic', slug);
+    }
+    setSearchParams(newParams);
+  };
+
+  const selectedTopic = topics.find(
+    (t) =>
+      t.id === selectedTopicId ||
+      t.slug.toLowerCase() === selectedTopicId.toLowerCase() ||
+      t.name.toLowerCase() === selectedTopicId.toLowerCase()
+  );
   const selectedTopicName = selectedTopic ? selectedTopic.name : selectedTopicId === 'all' ? 'All Topics' : selectedTopicId;
 
   const filteredArticles = articles.filter((art) => {
     // Topic filter
     if (selectedTopicId !== 'all') {
       const matchId = art.topicId === selectedTopicId || art.topic?.id === selectedTopicId;
-      const matchName = art.category?.toLowerCase() === selectedTopicName.toLowerCase() || art.topic?.name?.toLowerCase() === selectedTopicName.toLowerCase();
-      if (!matchId && !matchName) return false;
+      const matchSlug = art.topic?.slug?.toLowerCase() === selectedTopicId.toLowerCase();
+      const matchName =
+        art.category?.toLowerCase() === selectedTopicName.toLowerCase() ||
+        art.topic?.name?.toLowerCase() === selectedTopicName.toLowerCase() ||
+        art.category?.toLowerCase() === selectedTopicId.toLowerCase();
+      if (!matchId && !matchSlug && !matchName) return false;
     }
 
     // Search query filter
@@ -126,10 +157,7 @@ export const HomePage: React.FC = () => {
               >
                 <button
                   type="button"
-                  onClick={() => {
-                    setSelectedTopicId('all');
-                    setDropdownOpen(false);
-                  }}
+                  onClick={() => handleSelectTopic('all')}
                   className={`w-full text-left px-3.5 py-2.5 rounded-lg text-xs sm:text-sm font-medium flex items-center justify-between transition-colors ${
                     selectedTopicId === 'all'
                       ? 'bg-black/[0.06] dark:bg-white/[0.08] text-ink font-semibold'
@@ -141,15 +169,15 @@ export const HomePage: React.FC = () => {
                 </button>
 
                 {topics.map((t) => {
-                  const isSelected = selectedTopicId === t.id || selectedTopicId === t.slug;
+                  const isSelected =
+                    selectedTopicId === t.id ||
+                    selectedTopicId.toLowerCase() === t.slug.toLowerCase() ||
+                    selectedTopicId.toLowerCase() === t.name.toLowerCase();
                   return (
                     <button
                       key={t.id}
                       type="button"
-                      onClick={() => {
-                        setSelectedTopicId(t.id);
-                        setDropdownOpen(false);
-                      }}
+                      onClick={() => handleSelectTopic(t.id, t.slug)}
                       className={`w-full text-left px-3.5 py-2.5 rounded-lg text-xs sm:text-sm font-medium flex items-center justify-between transition-colors ${
                         isSelected
                           ? 'bg-black/[0.06] dark:bg-white/[0.08] text-ink font-semibold'

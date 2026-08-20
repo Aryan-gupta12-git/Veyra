@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { Article } from '../../types/article';
 import { formatRelativeTime } from '../../utils/relativeTime';
 import { useArticleStore } from '../../store/useArticleStore';
@@ -9,6 +9,7 @@ interface ArticleCardProps {
 }
 
 export const ArticleCard: React.FC<ArticleCardProps> = ({ article }) => {
+  const location = useLocation();
   const relativeTime = formatRelativeTime(article.createdAt);
   const authorDisplayName = article.authorName || article.author?.name || 'Aryan Gupta';
 
@@ -27,6 +28,7 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({ article }) => {
     >
       <Link
         to={`/article/${article.slug || article.id}`}
+        state={{ from: location.pathname + location.search }}
         onFocus={handlePrefetch}
         className="flex-1 flex flex-col justify-between focus:outline-none"
       >

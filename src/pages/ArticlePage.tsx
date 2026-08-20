@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import { Article } from '../types/article';
 import { toggleLikeArticle } from '../services/api';
 import { useArticleStore } from '../store/useArticleStore';
@@ -42,6 +42,7 @@ const ArticleContentBody = React.memo<{ content: string; contentRef: React.RefOb
 export const ArticlePage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
   const { user, isAdmin } = useAuth();
 
   const [article, setArticle] = useState<Article | null>(null);
@@ -314,8 +315,13 @@ export const ArticlePage: React.FC = () => {
 
   const handleBack = (e: React.MouseEvent) => {
     e.preventDefault();
-    if (window.history.length > 1) {
+    if (location.state?.from) {
+      navigate(location.state.from);
+    } else if (window.history.length > 1) {
       navigate(-1);
+    } else if (article?.topic?.slug || article?.category) {
+      const topicSlug = article.topic?.slug || article.category || '';
+      navigate(`/?topic=${encodeURIComponent(topicSlug)}`);
     } else {
       navigate('/');
     }

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { KnowledgeItem } from '../types/knowledge';
 import { fetchUserKnowledgeItems, deleteKnowledgeItem } from '../services/api';
 import { useAuth } from '../context/AuthContext';
@@ -11,6 +11,7 @@ import { ArrowLeft, Brain, BookOpen, Trash2 } from 'lucide-react';
 export const MemoryFeedPage: React.FC = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [knowledgeItems, setKnowledgeItems] = useState<KnowledgeItem[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [loading, setLoading] = useState(true);
@@ -71,7 +72,9 @@ export const MemoryFeedPage: React.FC = () => {
     if (!item.article) return;
     const targetSlug = item.article.slug || item.article.id;
     // Pass startOffset and text to locate exact highlight Range in ArticlePage
-    navigate(`/article/${encodeURIComponent(targetSlug)}?highlightId=${encodeURIComponent(item.id)}&startOffset=${item.startOffset}`);
+    navigate(`/article/${encodeURIComponent(targetSlug)}?highlightId=${encodeURIComponent(item.id)}&startOffset=${item.startOffset}`, {
+      state: { from: location.pathname + location.search },
+    });
   };
 
   return (
