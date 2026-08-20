@@ -38,6 +38,7 @@ export const useArticleStore = create<ArticleState>((set, get) => ({
         const merged: Article = {
           ...existing,
           ...art,
+          views: Math.max(existing?.views || 0, art.views || 0),
           content: art.content || (existing ? existing.content : ''),
           hasLiked: art.hasLiked !== undefined ? art.hasLiked : (existing ? existing.hasLiked : undefined),
         };
@@ -51,13 +52,15 @@ export const useArticleStore = create<ArticleState>((set, get) => ({
   fetchArticle: async (idOrSlug: string, skipView = false) => {
     const { articlesCache, pendingFetches } = get();
 
-    // 1. Check instant cache lookup
-    const cached = articlesCache.get(idOrSlug);
-    const hasFullContent = Boolean(cached && cached.content && cached.content.length > 0);
-    const hasLikeStatus = Boolean(cached && cached.hasLiked !== undefined);
+    // 1. Check instant cache lookup ONLY when skipView is true (e.g. read-only/prefetch lookup)
+    if (skipView) {
+      const cached = articlesCache.get(idOrSlug);
+      const hasFullContent = Boolean(cached && cached.content && cached.content.length > 0);
+      const hasLikeStatus = Boolean(cached && cached.hasLiked !== undefined);
 
-    if (hasFullContent && hasLikeStatus) {
-      return cached!;
+      if (hasFullContent && hasLikeStatus) {
+        return cached!;
+      }
     }
 
     // 2. Prevent duplicate parallel in-flight fetches for same article

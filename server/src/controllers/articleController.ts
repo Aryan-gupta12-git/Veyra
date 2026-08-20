@@ -127,14 +127,18 @@ export const getPublicArticleById = async (req: AuthRequest, res: Response): Pro
 
     const skipView = req.query.skipView === 'true' || req.user?.role === 'ADMIN';
 
-    // Increment view count asynchronously in background without blocking response
+    let currentViews = article.views;
     if (!skipView) {
-      prisma.article
-        .update({
+      try {
+        const updated = await prisma.article.update({
           where: { id: article.id },
           data: { views: { increment: 1 } },
-        })
-        .catch((err) => console.error('Failed to increment article view:', err));
+          select: { views: true },
+        });
+        currentViews = updated.views;
+      } catch (updateErr) {
+        console.error('Failed to increment article view:', updateErr);
+      }
     }
 
     let hasLiked = false;
@@ -150,7 +154,7 @@ export const getPublicArticleById = async (req: AuthRequest, res: Response): Pro
       hasLiked = Boolean(userLike);
     }
 
-    res.json({ article: { ...article, hasLiked } });
+    res.json({ article: { ...article, views: currentViews, hasLiked } });
   } catch (error: any) {
     console.error('Error fetching public article:', error);
     res.status(500).json({ error: 'Failed to retrieve article', details: error?.message });
